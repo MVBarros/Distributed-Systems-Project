@@ -1,0 +1,79 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- http://maven.apache.org/pom.html#Quick_Overview -->
+
+	<!-- Please replace 'CXX' below with your C (campus) with A (Alameda) / 
+	T (Tagus); and your group number with two digits. Then delete this comment. -->
+    <groupId>com.forkexec.CXX</groupId>
+    <artifactId>ForkExec</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <!-- specify modules to include in the build reactor -->
+        <module>uddi-naming</module>
+        <module>pts-ws</module>
+        <module>pts-ws-cli</module>
+        <module>rst-ws</module>
+        <module>rst-ws-cli</module>
+        <module>hub-ws</module>
+        <module>hub-ws-cli</module>
+    </modules>
+
+    <properties>
+        <version.java>1.8</version.java>
+
+        <version.maven-resources-plugin>2.6</version.maven-resources-plugin>
+        <version.maven-failsafe-plugin>2.19.1</version.maven-failsafe-plugin>
+        <version.exec-maven-plugin>1.6.0</version.exec-maven-plugin>
+        <version.appassembler-maven-plugin>2.0.0</version.appassembler-maven-plugin>
+        <version.maven-javadoc-plugin>3.0.0</version.maven-javadoc-plugin>
+        <version.jaxws-maven-plugin>2.5</version.jaxws-maven-plugin>
+
+        <version.junit>4.12</version.junit>
+        <version.jaxws-rt>2.2.10</version.jaxws-rt>
+        <version.jaxws-tools>2.2.10</version.jaxws-tools>
+        <version.jdom2>2.0.6</version.jdom2>
+        <version.uddi-naming>1.2.0</version.uddi-naming>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <maven.compiler.source>${version.java}</maven.compiler.source>
+        <maven.compiler.target>${version.java}</maven.compiler.target>
+
+		<uddi.url>http://localhost:9090</uddi.url>
+
+		<!-- Please replace 'CXX' below with your C (campus) with A (Alameda) / 
+ 			 T (Tagus); and your group number with two digits. Then delete this comment. -->
+		<group.id>CXX</group.id>
+		
+		<pts.ws.name>${group.id}_Points</pts.ws.name>
+		<rst.ws.name>${group.id}_Restaurant</rst.ws.name>
+		<hub.ws.name>${group.id}_Hub</hub.ws.name>
+	</properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <!-- option to ignore javadoc errors contained in the wsimport generated code -->
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
