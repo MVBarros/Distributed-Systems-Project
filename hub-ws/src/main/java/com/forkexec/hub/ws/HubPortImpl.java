@@ -1,16 +1,21 @@
 package com.forkexec.hub.ws;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.jws.WebService;
 
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.rst.ws.cli.RestaurantClient;
+import com.forkexec.rst.ws.cli.RestaurantClientException;
+
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
  * below "map" the Java class to the WSDL definitions.
  */
-@WebService(endpointInterface = "com.forkexec.pts.ws.HubPortType",
+@WebService(endpointInterface = "com.forkexec.hub.ws.HubPortType",
             wsdlLocation = "HubService.wsdl",
             name ="HubWebService",
             portName = "HubPort",
@@ -115,7 +120,28 @@ public class HubPortImpl implements HubPortType {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Hello ").append(inputMessage);
 		builder.append(" from ").append(wsName);
-		return builder.toString();
+		StringBuilder responses = new StringBuilder();
+
+		try {	
+			System.out.println("Contacting Restaurants connected to UDDI");
+			Collection<String> bindingsCol = this.endpointManager.getUddiNaming().list("T08_Restaurant%");
+			for (String binding: bindingsCol) {
+				System.out.println("Connected to endpoint: " + binding);
+				RestaurantClient rClient = new RestaurantClient(binding);
+				responses.append(rClient.ctrlPing(""));
+				responses.append("\n");
+				
+			}
+
+		}catch(UDDINamingException e) {
+			System.out.println("UDDI Service unreachable, got exception" + e);
+			return null;
+		}	
+		 catch (RestaurantClientException e) {
+			responses.append("Cannot Reach Client restaurant, got exception" + e);
+		}
+	return responses.append(builder.toString()).toString();
+		
 	}
 
 	/** Return all variables to default values. */
