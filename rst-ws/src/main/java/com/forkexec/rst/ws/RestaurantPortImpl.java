@@ -77,12 +77,20 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	/** Return all variables to default values. */
 	@Override
 	public void ctrlClear() {
+		Restaurant.getInstance().reset();
 	}
 
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
-		// TODO Auto-generated method stub
+		if(initialMenus == null)
+			throwBadInit("Initial Menu list can't be null");
+
+		if(initialMenus.contains(null))
+			throwBadInit("Initial Menu list can't contain null object");
+		
+		Restaurant.getInstance().init(initialMenus);
+		
 	}
 
 	// View helpers ----------------------------------------------------------

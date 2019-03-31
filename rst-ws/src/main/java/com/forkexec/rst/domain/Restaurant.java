@@ -1,5 +1,12 @@
 package com.forkexec.rst.domain;
 
+import com.forkexec.rst.ws.BadInitFault_Exception;
+import com.forkexec.rst.ws.MenuId;
+import com.forkexec.rst.ws.MenuInit;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Restaurant
@@ -8,6 +15,8 @@ package com.forkexec.rst.domain;
  *
  */
 public class Restaurant {
+	
+	public Map<MenuId, MenuInit> menus = new ConcurrentHashMap<>();
 
 
 	// Singleton -------------------------------------------------------------
@@ -30,6 +39,21 @@ public class Restaurant {
 	}
 
 
-	// TODO 
+	public void reset() {
+		menus.clear();
+	}
+	
+	//Menus
+
+	
+	public void init(List<MenuInit> initialMenus) throws BadInitFault_Exception{
+		reset();
+		
+		for (MenuInit menu: initialMenus) {
+			menus.put(menu.getMenu().getId(), menu);
+		}
+		
+	}
+	
 	
 }
