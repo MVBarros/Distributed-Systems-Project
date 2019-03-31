@@ -1,22 +1,18 @@
 package com.forkexec.rst.ws;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jws.WebService;
 
 import com.forkexec.rst.domain.Restaurant;
+import com.forkexec.rst.domain.RestaurantMenu;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
  * below "map" the Java class to the WSDL definitions.
  */
-@WebService(endpointInterface = "com.forkexec.rst.ws.RestaurantPortType",
-            wsdlLocation = "RestaurantService.wsdl",
-            name ="RestaurantWebService",
-            portName = "RestaurantPort",
-            targetNamespace="http://ws.rst.forkexec.com/",
-            serviceName = "RestaurantService"
-)
+@WebService(endpointInterface = "com.forkexec.rst.ws.RestaurantPortType", wsdlLocation = "RestaurantService.wsdl", name = "RestaurantWebService", portName = "RestaurantPort", targetNamespace = "http://ws.rst.forkexec.com/", serviceName = "RestaurantService")
 public class RestaurantPortImpl implements RestaurantPortType {
 
 	/**
@@ -29,15 +25,26 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	public RestaurantPortImpl(RestaurantEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
-	
+
 	// Main operations -------------------------------------------------------
-	
+
+	/** Get menu given a menuId */
 	@Override
 	public Menu getMenu(MenuId menuId) throws BadMenuIdFault_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		if (menuId == null || menuId.getId() == null)
+			throwBadMenuId("Menu Id can't be null");
+
+		if (menuId.getId().trim().isEmpty())
+			throwBadMenuId("Menu Id can't be empty");
+
+		RestaurantMenu menu = Restaurant.getInstance().getMenu(menuId.getId());
+
+		if (menu == null)
+			throwBadMenuId("No such menu with that Id ");
+
+		return newMenu(menu);
 	}
-	
+
 	@Override
 	public List<Menu> searchMenus(String descriptionText) throws BadTextFault_Exception {
 		// TODO Auto-generated method stub
@@ -50,8 +57,6 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	
 
 	// Control operations ----------------------------------------------------
 
@@ -83,30 +88,57 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
-		if(initialMenus == null)
+		if (initialMenus == null)
 			throwBadInit("Initial Menu list can't be null");
 
-		if(initialMenus.contains(null))
+		if (initialMenus.contains(null))
 			throwBadInit("Initial Menu list can't contain null object");
-		
-		Restaurant.getInstance().init(initialMenus);
-		
+
+		// Convert MenuInitList to RestaurantMenuList
+		List<RestaurantMenu> menus = new ArrayList<>();
+		initialMenus.stream().forEach(e -> menus.add(newRestaurantMenu(e)));
+
+		Restaurant.getInstance().init(menus);
+
 	}
 
 	// View helpers ----------------------------------------------------------
 
-	// /** Helper to convert a domain object to a view. */
-	// private ParkInfo buildParkInfo(Park park) {
-		// ParkInfo info = new ParkInfo();
-		// info.setId(park.getId());
-		// info.setCoords(buildCoordinatesView(park.getCoordinates()));
-		// info.setCapacity(park.getMaxCapacity());
-		// info.setFreeSpaces(park.getFreeDocks());
-		// info.setAvailableCars(park.getAvailableCars());
-		// return info;
-	// }
+	/**
+	 * Helper to convert domain object RestaurantMenu to view Object Menu
+	 */
+	private Menu newMenu(RestaurantMenu menu) {
+		Menu menuView = new Menu();
 
-	
+		menuView.setEntree(menu.getEntree());
+		menuView.setPlate(menu.getPlate());
+		menuView.setDessert(menu.getDessert());
+
+		MenuId menuId = new MenuId();
+		menuId.setId(menu.getId());
+		menuView.setId(menuId);
+
+		menuView.setPreparationTime(menu.getPreparationTime());
+		menuView.setPrice(menu.getPrice());
+		return menuView;
+	}
+
+	/**
+	 * Helper to convert view object MenuInit to domain Object RestaurantMenu
+	 */
+	private RestaurantMenu newRestaurantMenu(MenuInit menuInit) {
+		Menu menu = menuInit.getMenu();
+		int quantity = menuInit.getQuantity();
+		String entree = menu.getEntree();
+		String plate = menu.getPlate();
+		String dessert = menu.getDessert();
+		String id = menu.getId().getId();
+		int preparationTime = menu.getPreparationTime();
+		int price = menu.getPrice();
+
+		return new RestaurantMenu(id, entree, plate, dessert, price, preparationTime, quantity);
+	}
+
 	// Exception helpers -----------------------------------------------------
 
 	/** Helper to throw a new BadInit exception. */
@@ -116,6 +148,10 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		throw new BadInitFault_Exception(message, faultInfo);
 	}
 
-
+	private void throwBadMenuId(final String message) throws BadMenuIdFault_Exception {
+		BadMenuIdFault faultInfo = new BadMenuIdFault();
+		faultInfo.message = message;
+		throw new BadMenuIdFault_Exception(message, faultInfo);
+	}
 
 }
