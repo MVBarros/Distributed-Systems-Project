@@ -1,9 +1,5 @@
 package com.forkexec.rst.domain;
 
-import com.forkexec.rst.ws.BadInitFault_Exception;
-import com.forkexec.rst.ws.Menu;
-import com.forkexec.rst.ws.MenuId;
-import com.forkexec.rst.ws.MenuInit;
 
 import java.util.List;
 import java.util.Map;

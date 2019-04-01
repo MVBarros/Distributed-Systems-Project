@@ -2,6 +2,7 @@ package com.forkexec.hub.ws;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.jws.WebService;
 
@@ -15,13 +16,7 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
  * This class implements the Web Service port type (interface). The annotations
  * below "map" the Java class to the WSDL definitions.
  */
-@WebService(endpointInterface = "com.forkexec.hub.ws.HubPortType",
-            wsdlLocation = "HubService.wsdl",
-            name ="HubWebService",
-            portName = "HubPort",
-            targetNamespace="http://ws.hub.forkexec.com/",
-            serviceName = "HubService"
-)
+@WebService(endpointInterface = "com.forkexec.hub.ws.HubPortType", wsdlLocation = "HubService.wsdl", name = "HubWebService", portName = "HubPort", targetNamespace = "http://ws.hub.forkexec.com/", serviceName = "HubService")
 public class HubPortImpl implements HubPortType {
 
 	/**
@@ -34,59 +29,57 @@ public class HubPortImpl implements HubPortType {
 	public HubPortImpl(HubEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
 	}
-	
+
 	// Main operations -------------------------------------------------------
-	
+
 	@Override
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
+
 	@Override
 	public List<Food> searchDeal(String description) throws InvalidTextFault_Exception {
 		// TODO return lowest price menus first
 		return null;
 	}
-	
+
 	@Override
 	public List<Food> searchHungry(String description) throws InvalidTextFault_Exception {
 		// TODO return lowest preparation time first
 		return null;
 	}
 
-	
 	@Override
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
-		// TODO 
-		
+		// TODO
+
 	}
 
 	@Override
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
-		// TODO 
-		
+		// TODO
+
 	}
 
 	@Override
 	public FoodOrder orderCart(String userId)
 			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
-		// TODO 
+		// TODO
 		return null;
 	}
 
 	@Override
 	public int accountBalance(String userId) throws InvalidUserIdFault_Exception {
-	    // TODO
+		// TODO
 		return 0;
 	}
 
@@ -122,26 +115,31 @@ public class HubPortImpl implements HubPortType {
 		builder.append(" from ").append(wsName);
 		StringBuilder responses = new StringBuilder();
 
-		try {	
-			System.out.println("Contacting Restaurants connected to UDDI");
-			Collection<String> bindingsCol = this.endpointManager.getUddiNaming().list("T08_Restaurant%");
-			for (String binding: bindingsCol) {
-				System.out.println("Connected to endpoint: " + binding);
-				RestaurantClient rClient = new RestaurantClient(binding);
-				responses.append(rClient.ctrlPing(""));
-				responses.append("\n");
-				
-			}
+		System.out.println("Contacting Restaurants connected to UDDI");
 
-		}catch(UDDINamingException e) {
+		try {
+			Collection<String> bindingsCol = this.endpointManager.getUddiNaming().list("T08_Restaurant%");
+
+			bindingsCol.stream().forEach(binding -> {
+				try {
+					responses.append(pingRestaurant(binding));
+				} catch (RestaurantClientException e) {
+					responses.append("Cannot Reach Client restaurant, got exception" + e);
+				}
+			});
+
+		} catch (UDDINamingException e) {
 			System.out.println("UDDI Service unreachable, got exception" + e);
 			return null;
-		}	
-		 catch (RestaurantClientException e) {
-			responses.append("Cannot Reach Client restaurant, got exception" + e);
 		}
-	return responses.append(builder.toString()).toString();
-		
+
+		return responses.append(builder.toString()).toString();
+
+	}
+
+	public String pingRestaurant(String binding) throws RestaurantClientException {
+		System.out.println("Connecting to endpoint: " + binding);
+		return new RestaurantClient(binding).ctrlPing("").concat("\n");
 	}
 
 	/** Return all variables to default values. */
@@ -154,29 +152,26 @@ public class HubPortImpl implements HubPortType {
 	public void ctrlInitFood(List<FoodInit> initialFoods) throws InvalidInitFault_Exception {
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
 		// TODO Auto-generated method stub
-		
+
 	}
-
-
 
 	// View helpers ----------------------------------------------------------
 
 	// /** Helper to convert a domain object to a view. */
 	// private ParkInfo buildParkInfo(Park park) {
-		// ParkInfo info = new ParkInfo();
-		// info.setId(park.getId());
-		// info.setCoords(buildCoordinatesView(park.getCoordinates()));
-		// info.setCapacity(park.getMaxCapacity());
-		// info.setFreeSpaces(park.getFreeDocks());
-		// info.setAvailableCars(park.getAvailableCars());
-		// return info;
+	// ParkInfo info = new ParkInfo();
+	// info.setId(park.getId());
+	// info.setCoords(buildCoordinatesView(park.getCoordinates()));
+	// info.setCapacity(park.getMaxCapacity());
+	// info.setFreeSpaces(park.getFreeDocks());
+	// info.setAvailableCars(park.getAvailableCars());
+	// return info;
 	// }
 
-	
 	// Exception helpers -----------------------------------------------------
 
 	/** Helper to throw a new BadInit exception. */
