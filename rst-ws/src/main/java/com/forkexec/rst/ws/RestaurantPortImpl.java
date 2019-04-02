@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.jws.WebService;
 
+import com.forkexec.rst.domain.BadMenuInitiationException;
 import com.forkexec.rst.domain.Restaurant;
 import com.forkexec.rst.domain.RestaurantMenu;
 
@@ -96,9 +97,13 @@ public class RestaurantPortImpl implements RestaurantPortType {
 
 		// Convert MenuInitList to RestaurantMenuList
 		List<RestaurantMenu> menus = new ArrayList<>();
-		initialMenus.stream().forEach(e -> menus.add(newRestaurantMenu(e)));
+		initialMenus.forEach(e -> menus.add(newRestaurantMenu(e)));
 
-		Restaurant.getInstance().init(menus);
+		try {
+			Restaurant.getInstance().init(menus);
+		} catch (BadMenuInitiationException e) {
+			throwBadInit("BadInit got exception" + e.getMessage());
+		}
 
 	}
 
