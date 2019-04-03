@@ -114,16 +114,23 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
-		if (initialMenus == null)
+		
+		
+		if (initialMenus == null) 
 			throwBadInit("Initial Menu list can't be null");
+		
 
 		if (initialMenus.contains(null))
 			throwBadInit("Initial Menu list can't contain null object");
+		
 
 		// Convert MenuInitList to RestaurantMenuList
 		List<RestaurantMenu> menus = new ArrayList<>();
-		initialMenus.forEach(e -> menus.add(newRestaurantMenu(e)));
-
+		
+		for (MenuInit menu: initialMenus)
+			menus.add(newRestaurantMenu(menu));
+					
+		
 		try {
 			Restaurant.getInstance().init(menus);
 		} catch (BadMenuInitiationException e) {
@@ -190,7 +197,15 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	/**
 	 * Helper to convert view object MenuInit to domain Object RestaurantMenu
 	 */
-	private RestaurantMenu newRestaurantMenu(MenuInit menuInit) {
+	private RestaurantMenu newRestaurantMenu(MenuInit menuInit) throws BadInitFault_Exception {
+
+		if(menuInit.getMenu() == null) {
+			throwBadInit("Cannot add a null menu");
+		}
+		if(menuInit.getMenu().getId() == null) {
+			throwBadInit("Cannot add a null menu");
+		}
+		
 		Menu menu = menuInit.getMenu();
 		int quantity = menuInit.getQuantity();
 		String entree = menu.getEntree();
