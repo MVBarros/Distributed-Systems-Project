@@ -42,6 +42,8 @@ public class Restaurant {
 
 	public synchronized void reset() {
 		menus.clear();
+		menuOrders.clear();
+		currentOrder = 0;
 	}
 
 	// Menus
@@ -78,7 +80,7 @@ public class Restaurant {
 	
 	public List<RestaurantMenu> searchMenus (String descriptionText) throws BadTextException {
 		
-		if (descriptionText == null || descriptionText.contentEquals(""))
+		if (descriptionText == null || descriptionText.contentEquals("") || descriptionText.contains(" "))
 			throwBadTextException("Description text is empty or null");
 		
 		List<RestaurantMenu> result = new ArrayList<RestaurantMenu>();
