@@ -198,9 +198,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	 * Helper to convert view object MenuInit to domain Object RestaurantMenu
 	 */
 	private RestaurantMenu newRestaurantMenu(MenuInit menuInit) throws BadInitFault_Exception {
-		if(menuInit == null) {
-			throwBadInit("Cannot add a null menu");
-		}
+
 		if(menuInit.getMenu() == null) {
 			throwBadInit("Cannot add a null menu");
 		}
