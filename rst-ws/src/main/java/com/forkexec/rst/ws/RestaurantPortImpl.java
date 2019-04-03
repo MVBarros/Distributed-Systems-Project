@@ -5,9 +5,14 @@ import java.util.List;
 
 import javax.jws.WebService;
 
+import com.forkexec.rst.domain.BadMenuIdException;
 import com.forkexec.rst.domain.BadMenuInitiationException;
+import com.forkexec.rst.domain.BadQuantityException;
+import com.forkexec.rst.domain.BadTextException;
+import com.forkexec.rst.domain.InsufficientQuantityException;
 import com.forkexec.rst.domain.Restaurant;
 import com.forkexec.rst.domain.RestaurantMenu;
+import com.forkexec.rst.domain.RestaurantMenuOrder;
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -48,15 +53,35 @@ public class RestaurantPortImpl implements RestaurantPortType {
 
 	@Override
 	public List<Menu> searchMenus(String descriptionText) throws BadTextFault_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		List<Menu> result = new ArrayList<Menu>();
+		try {
+			for (RestaurantMenu rest : Restaurant.getInstance().searchMenus(descriptionText)) {
+				result.add(newMenu(rest));
+			}
+		} catch (BadTextException e) {
+			throwBadTextFault(e.getMessage());
+			return null;
+		}
+		return result;
 	}
 
 	@Override
 	public MenuOrder orderMenu(MenuId arg0, int arg1)
 			throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			RestaurantMenuOrder newOrder = Restaurant.getInstance().acceptMenuOrder(arg0, arg1);
+			return newMenuOrder(Restaurant.getInstance().addMenuOrder(newOrder));
+		} catch (BadMenuIdException e) {
+			throwBadMenuId(e.getMessage());
+			return null;
+		} catch (BadQuantityException e) {
+			throwBadQuantityFaul(e.getMessage());
+			return null;
+		} catch (InsufficientQuantityException e) {
+			throwInsufficientQuantityFault(e.getMessage());
+			return null;
+		}
+				
 	}
 
 	// Control operations ----------------------------------------------------
@@ -110,6 +135,40 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	// View helpers ----------------------------------------------------------
 
 	/**
+	 * Helper to convert domain object RestaurantMenuOrder to view Object MenuOrder
+	 */
+	private MenuOrder newMenuOrder(RestaurantMenuOrder oldMenu) {
+		MenuOrder menuOrderView = new MenuOrder();
+		
+		MenuOrderId id = new MenuOrderId();
+		id.setId(oldMenu.getId());
+		menuOrderView.setId(id);
+		
+		MenuId menuId = new MenuId();
+		menuId.setId(oldMenu.getMenuId());
+		menuOrderView.setMenuId(menuId);
+		
+		menuOrderView.setMenuQuantity(oldMenu.getMenuQuantity());
+		
+		return menuOrderView;
+	}
+	
+	/**
+	 * Helper to convert view object MenuOrder to domain object RestaurantMenuOrder
+	 */
+	
+	/*
+	private RestaurantMenuOrder newRestaurantMenuOrder(MenuOrder oldMenu) {
+		RestaurantMenuOrder menuOrderView = new RestaurantMenuOrder(
+					oldMenu.getId().getId(), 
+					oldMenu.getMenuId().getId(), 
+					oldMenu.getMenuQuantity());
+		
+		
+		return menuOrderView;
+	}*/
+	
+	/**
 	 * Helper to convert domain object RestaurantMenu to view Object Menu
 	 */
 	private Menu newMenu(RestaurantMenu menu) {
@@ -157,6 +216,24 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		BadMenuIdFault faultInfo = new BadMenuIdFault();
 		faultInfo.message = message;
 		throw new BadMenuIdFault_Exception(message, faultInfo);
+	}
+	
+	private void throwBadQuantityFaul(final String message) throws BadQuantityFault_Exception {
+		BadQuantityFault faultInfo = new BadQuantityFault();
+		 faultInfo.message = message;
+		throw new BadQuantityFault_Exception(message, faultInfo);
+	}
+	
+	private void throwInsufficientQuantityFault(final String message) throws InsufficientQuantityFault_Exception {
+		InsufficientQuantityFault faultInfo = new InsufficientQuantityFault();
+		 faultInfo.message = message;
+		throw new InsufficientQuantityFault_Exception(message, faultInfo);
+	}
+	
+	private void throwBadTextFault(final String message) throws BadTextFault_Exception {
+		BadTextFault faultInfo = new BadTextFault();
+		 faultInfo.message = message;
+		throw new BadTextFault_Exception(message, faultInfo);
 	}
 
 }

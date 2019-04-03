@@ -1,9 +1,13 @@
 package com.forkexec.rst.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+
+
+import com.forkexec.rst.ws.MenuId;
 
 /**
  * Restaurant
@@ -13,7 +17,9 @@ import java.util.stream.Stream;
  */
 public class Restaurant {
 
-	public Map<String, RestaurantMenu> menus = new ConcurrentHashMap<>();
+	private Map<String, RestaurantMenu> menus = new ConcurrentHashMap<>();
+	private Map<String, RestaurantMenuOrder> menuOrders = new ConcurrentHashMap<>();
+	private volatile int currentOrder = 0;
 
 	// Singleton -------------------------------------------------------------
 
@@ -69,5 +75,73 @@ public class Restaurant {
 		return menus.get(menuid);
 
 	}
+	
+	public List<RestaurantMenu> searchMenus (String descriptionText) throws BadTextException {
+		
+		if (descriptionText == null || descriptionText.contentEquals(""))
+			throwBadTextException("Description text is empty or null");
+		
+		List<RestaurantMenu> result = new ArrayList<RestaurantMenu>();
+		
+		for(RestaurantMenu rm : menus.values()) 
+			if (rm.getDescription().contains(descriptionText))
+				result.add(rm);
+		
+		return result;
+		
+		
+	}
+	
+	// Menu Orders
+	/**Return RestaurantMenuOrder if menuOrder is valid and it's ID is not duplicate and quantity accetable*/
+	public RestaurantMenuOrder acceptMenuOrder(MenuId arg0, int arg1) 
+			throws BadMenuIdException, BadQuantityException, InsufficientQuantityException {
+		
+		if (arg0 == null || arg0.getId() == null)
+			throwBadMenuId("Menu Id can't be null");
+		if (arg0.getId().trim().isEmpty())
+			throwBadMenuId("Menu Id can't be empty");
+		
+		RestaurantMenu menu = this.getMenu(arg0.getId());
+		if (menu == null)
+			throwBadMenuId("No such menu with that Id");
+		
+		if (arg1 < 1) throwBadQuantity("Quantity has to be equals or greater than one");
+		if (menu.getQuantity() < arg1) throwInsufficientQuantityFault("Can't order because quantity too big");
 
+		return new RestaurantMenuOrder(this.getCurrentOrderId() , arg0.getId(), arg1);
+
+
+	}
+	
+	
+	public String getCurrentOrderId () {
+		currentOrder ++;
+		return Integer.toString(currentOrder);
+	}
+	
+	
+	public RestaurantMenuOrder addMenuOrder(RestaurantMenuOrder newOrder) {
+		RestaurantMenu menu = this.getMenu(newOrder.getMenuId());
+		menu.setQuantity(menu.getQuantity()-newOrder.getMenuQuantity());
+		return menuOrders.put(newOrder.getId(), newOrder);
+	}
+	
+	/*** EXCEPTION ***/
+	
+	private void throwBadMenuId(final String message) throws BadMenuIdException {
+		throw new BadMenuIdException(message);
+	}
+	
+	private void throwBadQuantity(final String message) throws BadQuantityException {
+		throw new BadQuantityException(message);
+	}
+	
+	private void throwInsufficientQuantityFault(final String message) throws InsufficientQuantityException {
+		throw new InsufficientQuantityException(message);
+	}
+
+	private void throwBadTextException (final String message) throws BadTextException  {
+		throw new BadTextException (message);
+	}
 }
