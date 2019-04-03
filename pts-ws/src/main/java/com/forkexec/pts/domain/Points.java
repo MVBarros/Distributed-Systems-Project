@@ -64,31 +64,54 @@ public class Points {
 		this.initialBalance.set(points);
 	}
 
-	public synchronized int getUserPoints(String email) {
+	public synchronized int getUserPoints(String email) throws NoSuchEmailException{
+		
+		if(!accounts.containsKey(email)) throw new NoSuchEmailException();
+
 		return accounts.get(email);
 	}
 
-	public synchronized int addUserPoints(String email, int toAdd) {
+	public synchronized int addUserPoints(String email, int toAdd) throws InvalidPointCountException, NoSuchEmailException  {
+		
+		if (toAdd <= 0) throw new InvalidPointCountException();
+		
+		if(!accounts.containsKey(email)) throw new NoSuchEmailException();
+		
 		accounts.replace(email, accounts.get(email) + toAdd);
+
+		return accounts.get(email);
+	}
+	
+
+	public synchronized int removeUserPoints(String email, int toRemove) throws InvalidPointCountException, NoSuchEmailException, NotEnoughBalanceException {
+		
+		if (toRemove <= 0) throw new InvalidPointCountException();
+		
+		if(!accounts.containsKey(email)) throw new NoSuchEmailException();
+		
+		if(toRemove > accounts.get(email)) throw new NotEnoughBalanceException();
+		
+		accounts.replace(email, accounts.get(email) - toRemove);
 
 		return accounts.get(email);
 	}
 
 	/* Email functions */
 
-	public boolean checkEmail(String email) {
-		if (email == null)
-			return false;
+	public void checkEmail(String email) throws InvalidEmailNameException {
 
-		return PATTERN.matcher(email).matches();
+		if (!PATTERN.matcher(email).matches()) throw new InvalidEmailNameException();
 	}
 
-	public synchronized boolean checkEmailExists(String email) {
-		return accounts.containsKey(email);
+	public synchronized void checkEmailExists(String email) throws RepeatedUserEmailException {
+		if (accounts.containsKey(email)) throw new RepeatedUserEmailException();
 	}
 
 	/* Account functions */
-	public synchronized void addAccount(String email) {
+	public synchronized void addAccount(String email) throws InvalidEmailNameException,
+												RepeatedUserEmailException {
+		checkEmail(email);
+		checkEmailExists(email);
 		accounts.put(email, initialBalance.get());
 	}
 

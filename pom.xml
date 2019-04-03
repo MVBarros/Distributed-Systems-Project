@@ -19,6 +19,7 @@
         <module>rst-ws-cli</module>
         <module>hub-ws</module>
         <module>hub-ws-cli</module>
+        <!-- <module>cc-ws-cli</module> -->
     </modules>
 
     <properties>
@@ -52,6 +53,8 @@
 		<pts.ws.name>${group.id}_Points</pts.ws.name>
 		<rst.ws.name>${group.id}_Restaurant</rst.ws.name>
 		<hub.ws.name>${group.id}_Hub</hub.ws.name>
+	<!--  <cc.ws.name>${group.id}_cc </cc.ws.name> -->
+		
 	</properties>
 
     <build>
