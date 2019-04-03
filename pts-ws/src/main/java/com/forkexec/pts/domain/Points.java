@@ -67,6 +67,10 @@ public class Points {
     	this.initialBalance.set(points);
     }
     
+    public synchronized int getUserPoints(String email) {
+    	return accounts.get(email).intValue();
+    }
+    
     
     /*Email functions*/
     
@@ -76,7 +80,7 @@ public class Points {
     	return PATTERN.matcher(email).matches();
     }
     
-    public synchronized boolean checkNewEmail(String email) {
+    public synchronized boolean checkEmailExists(String email) {
     	return accounts.containsKey(email);
     }
     
