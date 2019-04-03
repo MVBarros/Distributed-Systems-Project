@@ -2,8 +2,7 @@ package com.forkexec.rst.domain;
 
 import java.util.stream.Stream;
 
-import com.forkexec.rst.ws.MenuId;
-
+/**Restaurant Menu Domain Object*/
 public class RestaurantMenu {
 
 	private String id;
@@ -24,7 +23,7 @@ public class RestaurantMenu {
 		this.preparationTime = prepTime;
 		this.quantity = quantity;
 	}
-
+	
 	public String getDescription() {
 		StringBuilder builder = new StringBuilder();
 		Stream.of(entree, plate, dessert).forEach(e -> builder.append(e + "\n"));

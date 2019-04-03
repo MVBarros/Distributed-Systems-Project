@@ -32,8 +32,10 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		this.endpointManager = endpointManager;
 	}
 
+	
 	// Main operations -------------------------------------------------------
 
+	
 	/** Get menu given a menuId */
 	@Override
 	public Menu getMenu(MenuId menuId) throws BadMenuIdFault_Exception {
@@ -50,7 +52,9 @@ public class RestaurantPortImpl implements RestaurantPortType {
 
 		return newMenu(menu);
 	}
-
+	
+	
+	/**Search Menus by description*/
 	@Override
 	public List<Menu> searchMenus(String descriptionText) throws BadTextFault_Exception {
 		List<Menu> result = new ArrayList<Menu>();
@@ -65,11 +69,15 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		return result;
 	}
 
+	
+	/**Order a menu by it's Id*/
 	@Override
 	public MenuOrder orderMenu(MenuId arg0, int arg1)
 			throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
+		if (arg0 == null)
+			throwBadMenuId("MenuId can't be null");
 		try {
-			RestaurantMenuOrder newOrder = Restaurant.getInstance().acceptMenuOrder(arg0, arg1);
+			RestaurantMenuOrder newOrder = Restaurant.getInstance().acceptMenuOrder(arg0.getId(), arg1);
 			return newMenuOrder(Restaurant.getInstance().addMenuOrder(newOrder));
 		} catch (BadMenuIdException e) {
 			throwBadMenuId(e.getMessage());
@@ -81,7 +89,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 			throwInsufficientQuantityFault(e.getMessage());
 			return null;
 		}
-				
+
 	}
 
 	// Control operations ----------------------------------------------------
@@ -111,26 +119,23 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		Restaurant.getInstance().reset();
 	}
 
+	
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
-		
-		
-		if (initialMenus == null) 
+
+		if (initialMenus == null)
 			throwBadInit("Initial Menu list can't be null");
-		
 
 		if (initialMenus.contains(null))
 			throwBadInit("Initial Menu list can't contain null object");
-		
 
 		// Convert MenuInitList to RestaurantMenuList
 		List<RestaurantMenu> menus = new ArrayList<>();
-		
-		for (MenuInit menu: initialMenus)
+
+		for (MenuInit menu : initialMenus)
 			menus.add(newRestaurantMenu(menu));
-					
-		
+
 		try {
 			Restaurant.getInstance().init(menus);
 		} catch (BadMenuInitiationException e) {
@@ -146,35 +151,20 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	 */
 	private MenuOrder newMenuOrder(RestaurantMenuOrder oldMenu) {
 		MenuOrder menuOrderView = new MenuOrder();
-		
+
 		MenuOrderId id = new MenuOrderId();
 		id.setId(oldMenu.getId());
 		menuOrderView.setId(id);
-		
+
 		MenuId menuId = new MenuId();
 		menuId.setId(oldMenu.getMenuId());
 		menuOrderView.setMenuId(menuId);
-		
+
 		menuOrderView.setMenuQuantity(oldMenu.getMenuQuantity());
-		
+
 		return menuOrderView;
 	}
-	
-	/**
-	 * Helper to convert view object MenuOrder to domain object RestaurantMenuOrder
-	 */
-	
-	/*
-	private RestaurantMenuOrder newRestaurantMenuOrder(MenuOrder oldMenu) {
-		RestaurantMenuOrder menuOrderView = new RestaurantMenuOrder(
-					oldMenu.getId().getId(), 
-					oldMenu.getMenuId().getId(), 
-					oldMenu.getMenuQuantity());
-		
-		
-		return menuOrderView;
-	}*/
-	
+
 	/**
 	 * Helper to convert domain object RestaurantMenu to view Object Menu
 	 */
@@ -199,13 +189,13 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	 */
 	private RestaurantMenu newRestaurantMenu(MenuInit menuInit) throws BadInitFault_Exception {
 
-		if(menuInit.getMenu() == null) {
+		if (menuInit.getMenu() == null) {
 			throwBadInit("Cannot add a null menu");
 		}
-		if(menuInit.getMenu().getId() == null) {
+		if (menuInit.getMenu().getId() == null) {
 			throwBadInit("Cannot add a null menu");
 		}
-		
+
 		Menu menu = menuInit.getMenu();
 		int quantity = menuInit.getQuantity();
 		String entree = menu.getEntree();
@@ -232,22 +222,22 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		faultInfo.message = message;
 		throw new BadMenuIdFault_Exception(message, faultInfo);
 	}
-	
+
 	private void throwBadQuantityFaul(final String message) throws BadQuantityFault_Exception {
 		BadQuantityFault faultInfo = new BadQuantityFault();
-		 faultInfo.message = message;
+		faultInfo.message = message;
 		throw new BadQuantityFault_Exception(message, faultInfo);
 	}
-	
+
 	private void throwInsufficientQuantityFault(final String message) throws InsufficientQuantityFault_Exception {
 		InsufficientQuantityFault faultInfo = new InsufficientQuantityFault();
-		 faultInfo.message = message;
+		faultInfo.message = message;
 		throw new InsufficientQuantityFault_Exception(message, faultInfo);
 	}
-	
+
 	private void throwBadTextFault(final String message) throws BadTextFault_Exception {
 		BadTextFault faultInfo = new BadTextFault();
-		 faultInfo.message = message;
+		faultInfo.message = message;
 		throw new BadTextFault_Exception(message, faultInfo);
 	}
 
