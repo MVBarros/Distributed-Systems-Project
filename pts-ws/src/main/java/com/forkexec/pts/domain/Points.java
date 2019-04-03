@@ -68,7 +68,13 @@ public class Points {
     }
     
     public synchronized int getUserPoints(String email) {
-    	return accounts.get(email).intValue();
+    	return accounts.get(email);
+    }
+    
+    public synchronized int addUserPoints(String email, int toAdd) {
+    	accounts.replace(email, accounts.get(email) + toAdd);
+    	
+    	return accounts.get(email);
     }
     
     

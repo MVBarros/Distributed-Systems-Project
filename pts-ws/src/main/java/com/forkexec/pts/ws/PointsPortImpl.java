@@ -35,7 +35,7 @@ public class PointsPortImpl implements PointsPortType {
 		}
 
 		Points.getInstance().addAccount(userEmail);
-	}
+	}	
 
 	@Override
 	public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
@@ -51,8 +51,18 @@ public class PointsPortImpl implements PointsPortType {
 	@Override
 	public int addPoints(final String userEmail, final int pointsToAdd)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-		// TODO
-		return -1;
+		if(pointsToAdd <= 0) {
+			throwInvalidPointsFault("Cannot add negative points");
+		}
+		
+		if (!Points.getInstance().checkEmail(userEmail)) {
+			throwInvalidEmailFault("Mail is not valid");
+		}
+		if(!Points.getInstance().checkEmailExists(userEmail))
+			throwInvalidEmailFault("Mail does not pertain to any user");
+		
+		
+		return Points.getInstance().addUserPoints(userEmail, pointsToAdd);
 	}
 
 	@Override
@@ -125,5 +135,12 @@ public class PointsPortImpl implements PointsPortType {
 		final NotEnoughBalanceFault faultInfo = new NotEnoughBalanceFault();
 		faultInfo.message = message;
 		throw new NotEnoughBalanceFault_Exception(message, faultInfo);
+	}
+	
+	/** Helper to throw a new NotEnoughBalanceFault exception. */
+	private void throwInvalidPointsFault(final String message) throws InvalidPointsFault_Exception {
+		final InvalidPointsFault faultInfo = new InvalidPointsFault();
+		faultInfo.message = message;
+		throw new InvalidPointsFault_Exception(message, faultInfo);
 	}
 }
