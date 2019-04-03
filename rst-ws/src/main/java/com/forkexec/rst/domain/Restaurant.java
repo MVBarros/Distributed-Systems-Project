@@ -34,13 +34,13 @@ public class Restaurant {
 		return SingletonHolder.INSTANCE;
 	}
 
-	public void reset() {
+	public synchronized void reset() {
 		menus.clear();
 	}
 
 	// Menus
 
-	public void init(List<RestaurantMenu> initialMenus) throws BadMenuInitiationException {
+	public synchronized void init(List<RestaurantMenu> initialMenus) throws BadMenuInitiationException {
 		reset();
 
 		for (RestaurantMenu menu : initialMenus) {
