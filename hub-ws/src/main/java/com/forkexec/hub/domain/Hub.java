@@ -69,6 +69,14 @@ public class Hub {
 		currentOrderId++;
 		return Integer.toString(currentOrderId);
 	}
+	
+	public Map<String, Integer> getCart(String userId) {
+		if(!carts.containsKey(userId))
+			//Empty hash Map
+			return new ConcurrentHashMap<String, Integer>();
+		return carts.get(userId).getCart();
+		
+	}
 
 
 	

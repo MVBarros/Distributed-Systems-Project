@@ -154,6 +154,13 @@ public class CtrlInitIT extends BaseIT {
 		initWithParams(1, 1, "1", "1", "1", null, 3);
 
 	}
+	
+
+	@Test(expected = BadInitFault_Exception.class)
+	public void newLineInit() throws BadInitFault_Exception {
+		initWithParams(1, 1, "1", "1", "1", "\n", 3);
+
+	}
 
 	@Test(expected = BadInitFault_Exception.class)
 	public void badQuantityInit() throws BadInitFault_Exception {

@@ -70,9 +70,8 @@ public class HubPortImpl implements HubPortType {
 		if (userId == null)
 			throwInvalidUserId("User Id can't be null");
 
-		if (!getCreditCard().validateNumber(creditCardNumber)) 
+		if (!getCreditCard().validateNumber(creditCardNumber))
 			throwInvalidCreditCard("Invalid credit card number");
-		
 
 		try {
 			switch (moneyToAdd) {
@@ -98,7 +97,6 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidMoney("Invalid Money Amount");
 		}
 
-
 	}
 
 	@Override
@@ -117,9 +115,9 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public List<Food> searchHungry(String description) throws InvalidTextFault_Exception {
-		
+
 		List<Food> foods = searchFood(description);
-		
+
 		Collections.sort(foods, new Comparator<Food>() {
 			@Override
 			public int compare(Food lhs, Food rhs) {
@@ -131,10 +129,10 @@ public class HubPortImpl implements HubPortType {
 
 		return foods;
 	}
-	
+
 	private List<Food> searchFood(String description) throws InvalidTextFault_Exception {
 		List<Food> foods = new ArrayList<>();
-		
+
 		for (Map.Entry<String, RestaurantClient> pair : getRestaurants().entrySet()) {
 			try {
 				for (Menu menu : pair.getValue().searchMenus(description)) {
@@ -142,9 +140,9 @@ public class HubPortImpl implements HubPortType {
 				}
 			} catch (BadTextFault_Exception e) {
 				throwInvalidText("Invalid description");
-			}				
+			}
 		}
-		
+
 		return foods;
 	}
 
@@ -161,26 +159,29 @@ public class HubPortImpl implements HubPortType {
 		if (foodId.getRestaurantId() == null)
 			throwInvalidFoodId("restaurant can't be null");
 
+
 		try {
 			getPoints().pointsBalance(userId);
 		} catch (InvalidEmailFault_Exception e) {
 			throwInvalidUserId("Invalid user id");
 		}
 		
-		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + ' ' + foodId.getRestaurantId(), foodQuantity);
+		/*Order Id is menuId\nrestaurantId*/
+		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + "\n" + foodId.getRestaurantId(), foodQuantity);
 
 	}
 
 	@Override
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
-		
-		if (userId == null || userId.contains(" ")) throwInvalidUserId("Invalid user id");
+
+		if (userId == null || userId.contains(" "))
+			throwInvalidUserId("Invalid user id");
 		try {
 			getPoints().pointsBalance(userId);
 		} catch (InvalidEmailFault_Exception e) {
 			throwInvalidUserId("User id isn't registered");
 		}
-		
+
 		Hub.getInstance().clearCart(userId);
 
 	}
@@ -208,34 +209,35 @@ public class HubPortImpl implements HubPortType {
 
 		}
 		try {
-		getPoints().spendPoints(userId, totalpoints);
-		}catch (NotEnoughBalanceFault_Exception  e) {
+			getPoints().spendPoints(userId, totalpoints);
+		} catch (NotEnoughBalanceFault_Exception e) {
 			throwNotEnoughPoints("");
-		}catch (Exception e) {
-			/*Will never happen*/
+		} catch (Exception e) {
+			/* Will never happen */
 			throw new RuntimeException();
 		}
-		
-		for(FoodOrderItem item: items) {
+
+		for (FoodOrderItem item : items) {
 			try {
-				getRestaurantbyId(item.getFoodId().getRestaurantId()).orderMenu(newMenuId(item.getFoodId()), item.getFoodQuantity());
+				getRestaurantbyId(item.getFoodId().getRestaurantId()).orderMenu(newMenuId(item.getFoodId()),
+						item.getFoodQuantity());
 			} catch (BadMenuIdFault_Exception e) {
-				/*will never happen*/
+				/* will never happen */
 				throw new RuntimeException();
 			} catch (BadQuantityFault_Exception e) {
-				/*will never happen*/
+				/* will never happen */
 				throw new RuntimeException();
 			} catch (InsufficientQuantityFault_Exception e) {
 				// TODO What
 			}
 		}
-		
+
 		FoodOrder order = new FoodOrder();
 		FoodOrderId orderId = new FoodOrderId();
 		orderId.setId(Hub.getInstance().getcurrentOrderId());
 		order.setFoodOrderId(orderId);
-		
-		/*nao da para fazer set dos items do order*/
+
+		/* nao da para fazer set dos items do order */
 		return order;
 	}
 
@@ -282,8 +284,33 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public List<FoodOrderItem> cartContents(String userId) throws InvalidUserIdFault_Exception {
-		// TODO
-		return null;
+		List<FoodOrderItem> items = new ArrayList<>();
+		try {
+			getPoints().pointsBalance(userId);
+		} catch (InvalidEmailFault_Exception e) {
+			throwInvalidUserId("Id given isn't valid, got exception" + e);
+		}
+		Map<String, Integer> carts = Hub.getInstance().getCart(userId);
+		
+		for(String cartName: carts.keySet()) {
+			String[] ids = cartName.split("\\n");
+			String restaurantId = ids[0];
+			String menuId = ids[1];
+			
+			FoodId foodId = new FoodId();
+			foodId.setMenuId(menuId);
+			foodId.setRestaurantId(restaurantId);
+			
+			int quantity = carts.get(cartName);
+
+			FoodOrderItem item = new FoodOrderItem();
+			item.setFoodId(foodId);
+			item.setFoodQuantity(quantity);
+			items.add(item);
+		}
+		
+		
+		return items;
 	}
 
 	// Control operations ----------------------------------------------------
@@ -344,8 +371,8 @@ public class HubPortImpl implements HubPortType {
 		Hub.getInstance().clear();
 		getPoints().ctrlClear();
 		Map<String, RestaurantClient> clients = getRestaurants();
-		
-		for(RestaurantClient client: clients.values()) {
+
+		for (RestaurantClient client : clients.values()) {
 			client.ctrlClear();
 		}
 	}
@@ -570,38 +597,37 @@ public class HubPortImpl implements HubPortType {
 		faultInfo.message = message;
 		throw new InvalidCreditCardFault_Exception(message, faultInfo);
 	}
-	
+
 	private void throwInvalidText(final String message) throws InvalidTextFault_Exception {
 		InvalidTextFault faultInfo = new InvalidTextFault();
 		faultInfo.message = message;
 		throw new InvalidTextFault_Exception(message, faultInfo);
 	}
-	
 
 	private void throwInvalidFoodId(final String message) throws InvalidFoodIdFault_Exception {
 		InvalidFoodIdFault faultInfo = new InvalidFoodIdFault();
 		faultInfo.message = message;
 		throw new InvalidFoodIdFault_Exception(message, faultInfo);
 	}
-	
+
 	private void throwInvalidFoodQuantity(final String message) throws InvalidFoodQuantityFault_Exception {
 		InvalidFoodQuantityFault faultInfo = new InvalidFoodQuantityFault();
 		faultInfo.message = message;
 		throw new InvalidFoodQuantityFault_Exception(message, faultInfo);
 	}
-	
 
 	private void throwInvalidInit(final String message) throws InvalidInitFault_Exception {
 		InvalidInitFault faultInfo = new InvalidInitFault();
 		faultInfo.message = message;
 		throw new InvalidInitFault_Exception(message, faultInfo);
 	}
+
 	private void throwEmptyCart(final String message) throws EmptyCartFault_Exception {
 		EmptyCartFault faultInfo = new EmptyCartFault();
 		faultInfo.message = message;
 		throw new EmptyCartFault_Exception(message, faultInfo);
 	}
-	
+
 	private void throwNotEnoughPoints(final String message) throws NotEnoughPointsFault_Exception {
 		NotEnoughPointsFault faultInfo = new NotEnoughPointsFault();
 		faultInfo.message = message;

@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HubOrder {
 
-	Map<String, Integer> cart = new ConcurrentHashMap<>();
+	private Map<String, Integer> cart = new ConcurrentHashMap<>();
 
 	private String orderId = null;
 
@@ -15,6 +15,10 @@ public class HubOrder {
 
 	public String getOrderId() {
 		return orderId;
+	}
+	
+	public Map<String, Integer> getCart() {
+		return cart;
 	}
 
 	private void setOrderId(String orderId) {
