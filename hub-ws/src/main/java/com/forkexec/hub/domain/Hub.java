@@ -53,12 +53,9 @@ public class Hub {
 	public synchronized void add2Cart(String userId, String foodid, Integer quantity) {
 		if (!carts.containsKey(userId)) {
 			carts.put(userId, new HubOrder());
-		}
-			
+		}	
 		HubOrder order = carts.get(userId);
-		
 		order.addToCart(foodid, quantity);
-		
 		carts.put(userId, order);
 	}
 	

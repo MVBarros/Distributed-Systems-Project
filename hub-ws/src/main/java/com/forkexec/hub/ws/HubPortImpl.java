@@ -153,14 +153,24 @@ public class HubPortImpl implements HubPortType {
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
+		if (userId == null || userId.contains(" ")) throwInvalidUserId("Invalid user id");
+		if (foodQuantity <= 0) throwInvalidFoodQuantity("Invalid food quantity");
+		if (foodId == null) throwInvalidFoodId("Invalid food id");
+		
+		try {
+			getPoints().pointsBalance(userId);
+		} catch (InvalidEmailFault_Exception e) {
+			throwInvalidUserId("Invalid user id");
+		}
 		
 		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + ' ' + foodId.getRestaurantId(), foodQuantity);
-		// TODO EXC
 
 	}
 
 	@Override
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
+		
+		
 		Hub.getInstance().clearCart(userId);
 		// TODO
 
@@ -564,13 +574,19 @@ public class HubPortImpl implements HubPortType {
 		faultInfo.message = message;
 		throw new InvalidFoodIdFault_Exception(message, faultInfo);
 	}
+	
+	private void throwInvalidFoodQuantity(final String message) throws InvalidFoodQuantityFault_Exception {
+		InvalidFoodQuantityFault faultInfo = new InvalidFoodQuantityFault();
+		faultInfo.message = message;
+		throw new InvalidFoodQuantityFault_Exception(message, faultInfo);
+	}
+	
 
 	private void throwInvalidInit(final String message) throws InvalidInitFault_Exception {
 		InvalidInitFault faultInfo = new InvalidInitFault();
 		faultInfo.message = message;
 		throw new InvalidInitFault_Exception(message, faultInfo);
 	}
-
 	private void throwEmptyCart(final String message) throws EmptyCartFault_Exception {
 		EmptyCartFault faultInfo = new EmptyCartFault();
 		faultInfo.message = message;
