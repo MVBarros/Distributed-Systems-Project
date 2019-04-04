@@ -10,6 +10,7 @@ import javax.jws.WebService;
 
 import com.forkexec.cc.ws.cli.CCClient;
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
@@ -40,8 +41,14 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
-		// TODO Auto-generated method stub
-
+		try {
+			getPoints().activateUser(userId);
+		} catch (EmailAlreadyExistsFault_Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidEmailFault_Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
