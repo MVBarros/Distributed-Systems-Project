@@ -104,13 +104,22 @@ public class GetFoodIT extends BaseIT {
 	}
 	
 	//Bad input tests
+	@Test
+	public void getFoodSuccess() throws InvalidFoodIdFault_Exception{
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("2");
+		foodid.setRestaurantId("T08_Restaurant1");
+		client.getFood(foodid);
+	}
+	
+	
 	@Test(expected =InvalidFoodIdFault_Exception.class)
 	public void getFoodNullId() throws InvalidFoodIdFault_Exception{
 		client.getFood(null);
 	}
 	
 	@Test(expected =InvalidFoodIdFault_Exception.class)
-	public void getFoodNonExistent() throws InvalidFoodIdFault_Exception{
+	public void getFoodNullMenu() throws InvalidFoodIdFault_Exception{
 		
 		FoodId foodid = new FoodId();
 		foodid.setMenuId(null);
@@ -118,6 +127,28 @@ public class GetFoodIT extends BaseIT {
 		
 		client.getFood(foodid);
 	}
+	
+	@Test(expected =InvalidFoodIdFault_Exception.class)
+	public void getFoodNullRestaurant() throws InvalidFoodIdFault_Exception{
+		
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("1");
+		foodid.setRestaurantId(null);
+		
+		client.getFood(foodid);
+	}
+	
+	@Test(expected =InvalidFoodIdFault_Exception.class)
+	public void getFoodNonExistentRestaurant() throws InvalidFoodIdFault_Exception{
+		
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("1");
+		foodid.setRestaurantId("NaoExiste");
+		
+		client.getFood(foodid);
+	}
+	
+	//Main Tests
 	
 	
 }
