@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 
+
 /**
  * Hub
  *
@@ -14,11 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Hub {
 	
+
 	private Map<String, HubFood> foods = new ConcurrentHashMap<>();
 
 	
 	
-
 	// Singleton -------------------------------------------------------------
 
 	/** Private constructor prevents instantiation from other classes. */
@@ -37,6 +38,7 @@ public class Hub {
 	public static synchronized Hub getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
+	
 
 
 
