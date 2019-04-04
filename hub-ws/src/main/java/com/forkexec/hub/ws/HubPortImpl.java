@@ -17,6 +17,7 @@ import com.forkexec.hub.domain.Hub;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
@@ -54,16 +55,47 @@ public class HubPortImpl implements HubPortType {
 		try {
 			getPoints().activateUser(userId);
 		} catch (EmailAlreadyExistsFault_Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throwInvalidUserId("Account has already been activated");
 		} catch (InvalidEmailFault_Exception e) {
-			e.printStackTrace();
+			throwInvalidUserId("Email not valid");
 		}
 	}
 
 	@Override
 	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
+
+		if (userId == null)
+			throwInvalidUserId("User Id can't be null");
+
+		if (!getCreditCard().validateNumber(creditCardNumber)) {
+			throwInvalidCreditCard("Invalid credit card number");
+		}
+
+		try {
+			switch (moneyToAdd) {
+			case 10:
+				getPoints().addPoints(userId, 1000);
+				break;
+			case 20:
+				getPoints().addPoints(userId, 2100);
+				break;
+			case 30:
+				getPoints().addPoints(userId, 3300);
+				break;
+			case 50:
+				getPoints().addPoints(userId, 5500);
+				break;
+			default:
+				throwInvalidMoney("Invalid Money Amount");
+			}
+		} catch (InvalidEmailFault_Exception e) {
+			throwInvalidUserId("Invalid user Id");
+
+		} catch (InvalidPointsFault_Exception e) {
+			throwInvalidMoney("Invalid Money Amount");
+		}
+
 		// TODO Auto-generated method stub
 
 	}
@@ -121,12 +153,15 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
-		// TODO
+
+		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + ' ' + foodId.getRestaurantId(), foodQuantity);
+		// TODO EXC
 
 	}
 
 	@Override
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
+		Hub.getInstance().clearCart(userId);
 		// TODO
 
 	}
@@ -135,6 +170,7 @@ public class HubPortImpl implements HubPortType {
 	public FoodOrder orderCart(String userId)
 			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
 		// TODO
+
 		return null;
 	}
 
@@ -276,16 +312,16 @@ public class HubPortImpl implements HubPortType {
 			inits.add(init);
 
 		}
-	
-	for (String serviceId: ids) {
-		try {
-		getRestaurantbyId(serviceId).ctrlInit(initMap.get(serviceId));
-		}catch (com.forkexec.rst.ws.BadInitFault_Exception e) {
-			throwInvalidInit("Invalid Menu to init");
-			
+
+		for (String serviceId : ids) {
+			try {
+				getRestaurantbyId(serviceId).ctrlInit(initMap.get(serviceId));
+			} catch (com.forkexec.rst.ws.BadInitFault_Exception e) {
+				throwInvalidInit("Invalid Menu to init");
+
+			}
 		}
-	}
-	
+
 	}
 
 	@Override
@@ -449,6 +485,18 @@ public class HubPortImpl implements HubPortType {
 		InvalidUserIdFault faultInfo = new InvalidUserIdFault();
 		faultInfo.message = message;
 		throw new InvalidUserIdFault_Exception(message, faultInfo);
+	}
+
+	private void throwInvalidMoney(final String message) throws InvalidMoneyFault_Exception {
+		InvalidMoneyFault faultInfo = new InvalidMoneyFault();
+		faultInfo.message = message;
+		throw new InvalidMoneyFault_Exception(message, faultInfo);
+	}
+
+	private void throwInvalidCreditCard(final String message) throws InvalidCreditCardFault_Exception {
+		InvalidCreditCardFault faultInfo = new InvalidCreditCardFault();
+		faultInfo.message = message;
+		throw new InvalidCreditCardFault_Exception(message, faultInfo);
 	}
 
 	private void throwInvalidFoodId(final String message) throws InvalidFoodIdFault_Exception {

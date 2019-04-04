@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodInit;
 //import com.forkexec.rst.domain.BadMenuInitiationException;
 //import com.forkexec.rst.domain.RestaurantMenu;
@@ -20,6 +21,13 @@ import com.forkexec.hub.ws.FoodInit;
  *
  */
 public class Hub {
+
+	// clientId --> (FoodId & RestaurantId) + quantity 
+	private Map<String, Map<String, Integer>> carts = new ConcurrentHashMap<String, Map<String, Integer>>();
+
+
+
+
 	
 	
 	// Singleton -------------------------------------------------------------
@@ -40,6 +48,20 @@ public class Hub {
 	public static synchronized Hub getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
+	
+
+	public synchronized void add2Cart(String userId, String foodid, Integer quantity) {
+		if (!carts.containsKey(userId))
+			//TODO EXCEPTION
+		carts.get(userId).put(foodid, quantity);
+	}
+	
+	public synchronized void clearCart(String userId) {
+		// TODO EXCAP
+		carts.get(userId).clear();
+	}
+
+		
 	
 
 	
