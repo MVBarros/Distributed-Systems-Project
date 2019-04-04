@@ -1,6 +1,9 @@
 package com.forkexec.hub.ws;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +19,7 @@ import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
+import com.forkexec.rst.ws.BadTextFault_Exception;
 import com.forkexec.rst.ws.Menu;
 import com.forkexec.rst.ws.MenuId;
 import com.forkexec.rst.ws.cli.RestaurantClient;
@@ -64,7 +68,25 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public List<Food> searchDeal(String description) throws InvalidTextFault_Exception {
-		// TODO return lowest price menus first
+		Map<String, RestaurantClient> restaurants = getRestaurants();
+		List<Food> foods = new ArrayList<>();
+		
+		restaurants.forEach((restID, rest) ->   {
+			try {
+				rest.searchMenus(description).forEach(menu -> foods.add(newFood(menu, restID)));
+			} catch (BadTextFault_Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+		
+		Collections.sort(foods, new Comparator<Food>() {
+		    @Override
+		    public int compare(Food lhs, Food rhs) {
+		        // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+		        return lhs.price < rhs.price ? -1 : (lhs.price > rhs.price) ? 1 : 0;
+		    }
+		});
 		return null;
 	}
 
