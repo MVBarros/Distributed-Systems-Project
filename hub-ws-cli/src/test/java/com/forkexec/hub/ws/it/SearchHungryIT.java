@@ -18,7 +18,7 @@ import com.forkexec.hub.ws.FoodInit;
 import com.forkexec.hub.ws.InvalidInitFault_Exception;
 import com.forkexec.hub.ws.InvalidTextFault_Exception;
 
-public class SearchDealIT extends BaseIT {
+public class SearchHungryIT extends BaseIT {
 
 	// one-time initialization and clean-up
 	@BeforeClass
@@ -92,35 +92,35 @@ public class SearchDealIT extends BaseIT {
 	//Bad Input Tests
 	@Test(expected =InvalidTextFault_Exception.class)
 	public void searchDealNullDescription() throws InvalidTextFault_Exception{
-		client.searchDeal(null);
+		client.searchHungry(null);
 	}
 	
 	@Test(expected =InvalidTextFault_Exception.class)
 	public void searchDealEmptyDescription() throws InvalidTextFault_Exception{
-		client.searchDeal("");
+		client.searchHungry("");
 	}
 	
 	@Test(expected =InvalidTextFault_Exception.class)
 	public void searchDealWhiteSpaceDescription() throws InvalidTextFault_Exception{
-		client.searchDeal(" ");
+		client.searchHungry(" ");
 	}
 	
 	//Main Tests
 	@Test
 	public void success() throws InvalidTextFault_Exception{	
-		List<Food> resultados = client.searchDeal("Chocolate");
+		List<Food> resultados = client.searchHungry("Chocolate");
 		for (int i = 0; i < resultados.size(); i++ ) {
 			
 			assertTrue(resultados.get(i).getDessert().contains("Chocolate") || resultados.get(i).getEntree().contains("Chocolate") || resultados.get(i).getPlate().contains("Chocolate"));
 			if (i != 0)
-				assertTrue(resultados.get(i-1).getPrice() < resultados.get(i).getPrice());
+				assertTrue(resultados.get(i-1).getPreparationTime() < resultados.get(i).getPreparationTime());
 				
 		}
 	}
 	
 	@Test
 	public void searchDealDoesntFind() throws InvalidTextFault_Exception{	
-		List<Food> resultados = client.searchDeal("NaoExiste");
+		List<Food> resultados = client.searchHungry("NaoExiste");
 		assertTrue(resultados.isEmpty()); 
 	}
 	
