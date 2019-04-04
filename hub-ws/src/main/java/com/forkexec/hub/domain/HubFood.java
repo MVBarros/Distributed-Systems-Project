@@ -5,7 +5,7 @@ public class HubFood {
 
 	private String restaurantId;
 	private String id;
-	private String foodid;
+	private String foodId;
 	private String entree;
 	private String plate;
 	private String dessert;
@@ -23,7 +23,7 @@ public class HubFood {
 		this.preparationTime = prepTime;
 		this.quantity = quantity;
 		this.restaurantId = restaurantId;
-		this.foodid = id + restaurantId;
+		this.foodId = id + restaurantId;
 	}
 	
 	public synchronized int getQuantity() {
@@ -60,6 +60,10 @@ public class HubFood {
 	
 	public String getRestaurantId() {
 		return restaurantId;
+	}
+	
+	public String getFoodId() {
+		return foodId;
 	}
 
 	

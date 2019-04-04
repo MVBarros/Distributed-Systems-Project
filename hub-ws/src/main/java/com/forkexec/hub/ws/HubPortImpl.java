@@ -14,6 +14,8 @@ import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
+import com.forkexec.rst.ws.BadMenuIdFault_Exception;
+import com.forkexec.rst.ws.MenuId;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
 
@@ -105,8 +107,32 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public Food getFood(FoodId foodId) throws InvalidFoodIdFault_Exception {
-		// TODO
+		if (foodId == null)
+			throwInvalidFoodId("foodId can't be null");
+		if(foodId.getMenuId() == null)
+			throwInvalidFoodId("menu can't be null");
+		
+		if(foodId.getRestaurantId() == null)
+			throwInvalidFoodId("restaurant can't be null");
+		
+		RestaurantClient client = getRestaurantbyId(foodId.getRestaurantId());
+		
+		
+		if (client == null) {
+			throwInvalidFoodId("Restaurant does not exist");
+		}
+		
+		MenuId menuId = null;
+		try {
+			menuId = client.getMenu(newMenuId(foodId)).getId();
+		}catch (BadMenuIdFault_Exception e) {
+			throwInvalidFoodId("No such food with that name in that restaurant");
+		}
+		
+		FoodId foodId1 = newFoodId(menuId, foodId.getRestaurantId());
+		
 		return null;
+
 	}
 
 	@Override
@@ -175,12 +201,20 @@ public class HubPortImpl implements HubPortType {
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInitFood(List<FoodInit> initialFoods) throws InvalidInitFault_Exception {
-		// TODO Auto-generated method stub
+		
+
 	}
 
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
 		// TODO Auto-generated method stub
+
+	}
+	
+	public RestaurantClient getRestaurantbyId(String id) {
+		
+
+		return getRestaurants().get(id);
 
 	}
 
@@ -242,6 +276,19 @@ public class HubPortImpl implements HubPortType {
 	// info.setAvailableCars(park.getAvailableCars());
 	// return info;
 	// }
+	
+	private MenuId newMenuId(FoodId id) {
+		MenuId menuId = new MenuId();
+		menuId.setId(id.getMenuId());
+		return menuId;
+	}
+	
+	private FoodId newFoodId(MenuId id, String restaurantId) {
+		FoodId foodId = new FoodId();
+		foodId.setMenuId(id.getId());
+		foodId.setRestaurantId(restaurantId);
+		return foodId;
+	}
 
 	// Exception helpers -----------------------------------------------------
 
@@ -256,5 +303,11 @@ public class HubPortImpl implements HubPortType {
 		InvalidUserIdFault faultInfo = new InvalidUserIdFault();
 		faultInfo.message = message;
 		throw new InvalidUserIdFault_Exception(message, faultInfo);
+	}
+	
+	private void throwInvalidFoodId(final String message) throws InvalidFoodIdFault_Exception {
+		InvalidFoodIdFault faultInfo = new InvalidFoodIdFault();
+		faultInfo.message = message;
+		throw new InvalidFoodIdFault_Exception(message, faultInfo);
 	}
 }
