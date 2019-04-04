@@ -306,7 +306,6 @@ public class HubPortImpl implements HubPortType {
 			items.add(item);
 		}
 		
-		
 		return items;
 	}
 
@@ -525,13 +524,13 @@ public class HubPortImpl implements HubPortType {
 		menuId.setId(id.getMenuId());
 		return menuId;
 	}
-
+/*
 	private FoodId newFoodId(MenuId id, String restaurantId) {
 		FoodId foodId = new FoodId();
 		foodId.setMenuId(id.getId());
 		foodId.setRestaurantId(restaurantId);
 		return foodId;
-	}
+	}*/
 
 	private Food newFood(Menu menu, String restaurantId) {
 
