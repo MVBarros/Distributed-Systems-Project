@@ -12,6 +12,7 @@ import javax.jws.WebService;
 
 import com.forkexec.cc.ws.cli.CCClient;
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.pts.domain.Points;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
@@ -52,7 +53,7 @@ public class HubPortImpl implements HubPortType {
 		try {
 			getPoints().activateUser(userId);
 		} catch (EmailAlreadyExistsFault_Exception e) {
-			throwInvalidUserId("Email given already exists");			
+			throwInvalidUserId("Account has already been activated");			
 		} catch (InvalidEmailFault_Exception e) {
 			throwInvalidUserId("Email not valid");
 		}
@@ -62,10 +63,12 @@ public class HubPortImpl implements HubPortType {
 	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 		
-		// check if user Id is valid
+		if (userId == null)
+			throwInvalidUserId("User Id can't be null");
 		
+				
 		if (!getCreditCard().validateNumber(creditCardNumber)) {
-			// Throw Error
+			throwInvalidCreditCard("Invalid credit card number");
 		}
 		
 		try {
@@ -83,12 +86,13 @@ public class HubPortImpl implements HubPortType {
 					getPoints().addPoints(userId, 5500);
 					break;
 				default:
-					// Trow error
+					throwInvalidMoney("Invalid Money Amount");
 			}
 		} catch (InvalidEmailFault_Exception e) {
+			throwInvalidUserId("Invalid user Id");
 			
 		} catch (InvalidPointsFault_Exception e) {
-			
+			throwInvalidMoney("Invalid Money Amount");
 		}
 		
 		
@@ -405,6 +409,20 @@ public class HubPortImpl implements HubPortType {
 		faultInfo.message = message;
 		throw new InvalidUserIdFault_Exception(message, faultInfo);
 	}
+	
+	private void throwInvalidMoney(final String message) throws InvalidMoneyFault_Exception {
+		InvalidMoneyFault faultInfo = new InvalidMoneyFault();
+		faultInfo.message = message;
+		throw new InvalidMoneyFault_Exception(message, faultInfo);
+	}
+	
+	private void throwInvalidCreditCard(final String message) throws InvalidCreditCardFault_Exception {
+		InvalidCreditCardFault faultInfo = new InvalidCreditCardFault();
+		faultInfo.message = message;
+		throw new InvalidCreditCardFault_Exception(message, faultInfo);
+	}
+	
+	
 	
 	private void throwInvalidFoodId(final String message) throws InvalidFoodIdFault_Exception {
 		InvalidFoodIdFault faultInfo = new InvalidFoodIdFault();
