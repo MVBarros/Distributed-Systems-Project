@@ -161,7 +161,10 @@ public class HubPortImpl implements HubPortType {
 
 		if (foodId.getRestaurantId() == null)
 			throwInvalidFoodId("restaurant can't be null");
-
+		
+		if (!getRestaurantIds().contains(foodId.getRestaurantId()))
+			throwInvalidFoodId("Non existing restaurant");
+		
 		try {
 			getPoints().pointsBalance(userId);
 		} catch (InvalidEmailFault_Exception e) {
@@ -442,7 +445,7 @@ public class HubPortImpl implements HubPortType {
 
 	}
 
-	public Collection<String> getRestaurantIds() {
+	private Collection<String> getRestaurantIds() {
 		Collection<String> ids = new ArrayList<String>();
 
 		Collection<String> bindingsCol = null;
@@ -465,7 +468,7 @@ public class HubPortImpl implements HubPortType {
 
 	}
 
-	public Map<String, RestaurantClient> getRestaurants() {
+	private Map<String, RestaurantClient> getRestaurants() {
 		Collection<String> bindingsCol = null;
 		try {
 			bindingsCol = this.endpointManager.getUddiNaming().list("T08_Restaurant%");
@@ -492,7 +495,7 @@ public class HubPortImpl implements HubPortType {
 
 	}
 
-	public PointsClient getPoints() {
+	private PointsClient getPoints() {
 		String binding = null;
 		try {
 			binding = this.endpointManager.getUddiNaming().lookup("T08_Points%");
@@ -508,7 +511,7 @@ public class HubPortImpl implements HubPortType {
 		}
 	}
 
-	public CCClient getCreditCard() {
+	private CCClient getCreditCard() {
 
 		return new CCClient();
 	}

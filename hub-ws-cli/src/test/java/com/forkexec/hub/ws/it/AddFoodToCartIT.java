@@ -179,7 +179,8 @@ public class AddFoodToCartIT extends BaseIT {
 			List<FoodOrderItem> carrinho = client.cartContents("teste@mail.com");
 			
 			for (FoodOrderItem foi: carrinho) {
-				assertEquals(foi.getFoodId(), foodid);
+				assertEquals(foi.getFoodId().getMenuId(), foodid.getMenuId());
+				assertEquals(foi.getFoodId().getRestaurantId(), foodid.getRestaurantId());
 				assertEquals(foi.getFoodQuantity(), 1);
 			}
 		}

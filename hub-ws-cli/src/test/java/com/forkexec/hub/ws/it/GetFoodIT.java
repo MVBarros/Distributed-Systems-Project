@@ -140,23 +140,21 @@ public class GetFoodIT extends BaseIT {
 	}
 	
 	//Main Tests
-	/* TODO
+
 	@Test
 	public void getFoodSuccess() throws InvalidFoodIdFault_Exception{
 		FoodId foodid = new FoodId();
-		foodid.setMenuId("2");
+		foodid.setMenuId("1");
 		foodid.setRestaurantId("T08_Restaurant1");
 		Food f = client.getFood(foodid);
 		
-		RestaurantClient rest = getRestaurantbyId(foodid.getRestaurantId());
-		Menu menu = rest.getMenu(newMenuId(foodid));
-		assertEquals(f.getDessert(), menu.getDessert());
-		assertEquals(f.getEntree(), menu.getEntree());
-		assertEquals(f.getId(), menu.getId());
-		assertEquals(f.getPlate(), menu.getPlate());
-		assertEquals(f.getPreparationTime(), menu.getPreparationTime());
-		assertEquals(f.getPrice(), menu.getPrice() );
+		assertEquals(f.getDessert(), "Bolo");
+		assertEquals(f.getEntree(), "Salada de Polvo");
+		assertEquals(f.getId(), foodid);
+		assertEquals(f.getPlate(),"Arroz");
+		assertEquals(f.getPreparationTime(),3 );
+		assertEquals(f.getPrice(), 15);
 	}
-	*/
+	
 	
 }
