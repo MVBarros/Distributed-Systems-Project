@@ -10,6 +10,7 @@ import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodInit;
 //import com.forkexec.rst.domain.BadMenuInitiationException;
 //import com.forkexec.rst.domain.RestaurantMenu;
+import com.forkexec.rst.domain.BadMenuIdException;
 
 
 
@@ -62,8 +63,9 @@ public class Hub {
 		carts.put(userId, order);
 	}
 	
-	public synchronized void clearCart(String userId) {
-		// TODO EXCAP
+	public synchronized void clearCart(String userId) throws InvalidUserIdException {
+		if (!carts.containsKey(userId)) 
+			throwInvalidUserIdException("Id not registered in hub");
 		carts.get(userId).clear();
 	}
 	
@@ -72,7 +74,13 @@ public class Hub {
 		return Integer.toString(currentOrderId);
 	}
 
-		
+	
+	/*** 		EXCEPTIONS 		***/
+	
+	
+	private void throwInvalidUserIdException(final String message) throws InvalidUserIdException {
+		throw new InvalidUserIdException(message);
+	}
 	
 
 	

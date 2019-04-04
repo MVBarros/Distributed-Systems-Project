@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 import javax.jws.WebService;
 
@@ -72,9 +71,9 @@ public class HubPortImpl implements HubPortType {
 		if (userId == null)
 			throwInvalidUserId("User Id can't be null");
 
-		if (!getCreditCard().validateNumber(creditCardNumber)) {
+		if (!getCreditCard().validateNumber(creditCardNumber)) 
 			throwInvalidCreditCard("Invalid credit card number");
-		}
+		
 
 		try {
 			switch (moneyToAdd) {
@@ -100,23 +99,12 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidMoney("Invalid Money Amount");
 		}
 
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public List<Food> searchDeal(String description) throws InvalidTextFault_Exception {
-		Map<String, RestaurantClient> restaurants = getRestaurants();
-		List<Food> foods = new ArrayList<>();
-
-		restaurants.forEach((restID, rest) -> {
-			try {
-				rest.searchMenus(description).forEach(menu -> foods.add(newFood(menu, restID)));
-			} catch (BadTextFault_Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
+		List<Food> foods = searchFood(description);
 
 		Collections.sort(foods, new Comparator<Food>() {
 			@Override
@@ -130,18 +118,9 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public List<Food> searchHungry(String description) throws InvalidTextFault_Exception {
-		Map<String, RestaurantClient> restaurants = getRestaurants();
-		List<Food> foods = new ArrayList<>();
-
-		restaurants.forEach((restID, rest) -> {
-			try {
-				rest.searchMenus(description).forEach(menu -> foods.add(newFood(menu, restID)));
-			} catch (BadTextFault_Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
-
+		
+		List<Food> foods = searchFood(description);
+		
 		Collections.sort(foods, new Comparator<Food>() {
 			@Override
 			public int compare(Food lhs, Food rhs) {
@@ -153,11 +132,28 @@ public class HubPortImpl implements HubPortType {
 
 		return foods;
 	}
+	
+	private List<Food> searchFood(String description) throws InvalidTextFault_Exception {
+		List<Food> foods = new ArrayList<>();
+		
+		for (Map.Entry<String, RestaurantClient> pair : getRestaurants().entrySet()) {
+			try {
+				for (Menu menu : pair.getValue().searchMenus(description)) {
+					foods.add(newFood(menu, pair.getKey()));
+				}
+			} catch (BadTextFault_Exception e) {
+				throwInvalidText("Invalid description");
+			}				
+		}
+		
+		return foods;
+	}
 
 	@Override
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
+		
 		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + ' ' + foodId.getRestaurantId(), foodQuantity);
 		// TODO EXC
 
@@ -548,6 +544,13 @@ public class HubPortImpl implements HubPortType {
 		faultInfo.message = message;
 		throw new InvalidCreditCardFault_Exception(message, faultInfo);
 	}
+	
+	private void throwInvalidText(final String message) throws InvalidTextFault_Exception {
+		InvalidTextFault faultInfo = new InvalidTextFault();
+		faultInfo.message = message;
+		throw new InvalidTextFault_Exception(message, faultInfo);
+	}
+	
 
 	private void throwInvalidFoodId(final String message) throws InvalidFoodIdFault_Exception {
 		InvalidFoodIdFault faultInfo = new InvalidFoodIdFault();
