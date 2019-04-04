@@ -86,13 +86,32 @@ public class HubPortImpl implements HubPortType {
 		        return lhs.price < rhs.price ? -1 : (lhs.price > rhs.price) ? 1 : 0;
 		    }
 		});
-		return null;
+		return foods;
 	}
 
 	@Override
 	public List<Food> searchHungry(String description) throws InvalidTextFault_Exception {
-		// TODO return lowest preparation time first
-		return null;
+		Map<String, RestaurantClient> restaurants = getRestaurants();
+		List<Food> foods = new ArrayList<>();
+		
+		restaurants.forEach((restID, rest) ->   {
+			try {
+				rest.searchMenus(description).forEach(menu -> foods.add(newFood(menu, restID)));
+			} catch (BadTextFault_Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
+		
+		Collections.sort(foods, new Comparator<Food>() {
+		    @Override
+		    public int compare(Food lhs, Food rhs) {
+		        // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+		        return lhs.getPreparationTime() < rhs.getPreparationTime() ? -1 : (lhs.getPreparationTime() > rhs.getPreparationTime()) ? 1 : 0;
+		    }
+		});
+		
+		return foods;
 	}
 
 	@Override
