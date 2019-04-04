@@ -17,14 +17,14 @@
 	<properties>
 		<!-- see parent POM for more properties -->
 
-		<mainclass>com.forkexec.cc.ws.cli.CCClientApp</mainclass>
 
+		<wsdl.dir>${basedir}/../cc-contract/</wsdl.dir>
 		<!-- instance number -->
 		<ws.i>1</ws.i>
 
-		<ws.host>localhost</ws.host>
-		<ws.port>905${ws.i}</ws.port>
-		<ws.url>http://${ws.host}:${ws.port}/cc-ws/endpoint</ws.url>
+		<!-- <ws.host>localhost</ws.host> -->
+		<!-- <ws.port>905${ws.i}</ws.port>-->
+		<ws.url>http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc</ws.url>
 
 		<ws.name>${cc.ws.name}${ws.i}</ws.name>
 	</properties>
@@ -48,7 +48,9 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<scope>test</scope>
+
 		</dependency>
+		
 	</dependencies>
 	<build>
 		<resources>
@@ -146,10 +148,7 @@
 				</executions>
 				<configuration>
 					<programs>
-						<program>
-							<mainClass>${mainclass}</mainClass>
-							<id>${project.artifactId}</id>
-						</program>
+
 					</programs>
 				</configuration>
 			</plugin>
