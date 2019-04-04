@@ -85,14 +85,15 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public int accountBalance(String userId) throws InvalidUserIdFault_Exception {
-		PointsClient client = getPoints();
+
+		int points = 0;
+		
 		try {
-		client.pointsBalance(userId);
-		}catch (InvalidEmailFault_Exception e) {
-			
+			points = getPoints().pointsBalance(userId);	
+		} catch (InvalidEmailFault_Exception e) {
+			throwInvalidUserId("Id given isn't valid, got exception" + e);
 		}
-		// TODO
-		return 0;
+		return points;
 	}
 
 	@Override
@@ -243,8 +244,8 @@ public class HubPortImpl implements HubPortType {
 //		faultInfo.message = message;
 //		throw new BadInitFault_Exception(message, faultInfo);
 //	}
-	
-	private void throwInvalidUser(final String message) throws InvalidUserIdFault_Exception {
+
+	private void throwInvalidUserId(final String message) throws InvalidUserIdFault_Exception {
 		InvalidUserIdFault faultInfo = new InvalidUserIdFault();
 		faultInfo.message = message;
 		throw new InvalidUserIdFault_Exception(message, faultInfo);

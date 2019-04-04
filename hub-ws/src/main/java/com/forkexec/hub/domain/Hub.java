@@ -1,14 +1,10 @@
 package com.forkexec.hub.domain;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.forkexec.cc.ws.cli.CCClient;
-import com.forkexec.pts.ws.cli.PointsClient;
-import com.forkexec.pts.ws.cli.PointsClientException;
-import com.forkexec.rst.ws.cli.RestaurantClient;
-import com.forkexec.rst.ws.cli.RestaurantClientException;
 
-import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
 /**
  * Hub
@@ -17,7 +13,11 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
  *
  */
 public class Hub {
+	
+	private Map<String, HubFood> foods = new ConcurrentHashMap<>();
 
+	
+	
 
 	// Singleton -------------------------------------------------------------
 
