@@ -46,26 +46,11 @@ public class GetFoodIT extends BaseIT {
 		foodinit1.setFood(f1);
 		foodinit1.setQuantity(2);
 		
-		//Second foodinit
-		FoodId foodid2 = new FoodId();
-		foodid2.setMenuId("2");
-		foodid2.setRestaurantId("T08_Restaurant1");
-		
-		Food f2 = new Food();
-		f2.setId(foodid2);
-		f2.setEntree("Salada de Polvo");
-		f2.setPlate("Arroz");
-		f2.setDessert("Bolo");
-		f2.setPrice(15);
-		f2.setPreparationTime(4);
-		
-		FoodInit foodinit2 = new FoodInit();
-		foodinit2.setFood(f2);
-		foodinit2.setQuantity(2);
 		
 		
 		
-		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1, foodinit2));
+		
+		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1));
 		client.ctrlInitFood(foodInits);
 
 		
@@ -104,7 +89,7 @@ public class GetFoodIT extends BaseIT {
 		
 		FoodId foodid = new FoodId();
 		foodid.setMenuId(null);
-		foodid.setRestaurantId("T08_Restaurant2");
+		foodid.setRestaurantId("T08_Restaurant1");
 		
 		client.getFood(foodid);
 	}
@@ -114,7 +99,7 @@ public class GetFoodIT extends BaseIT {
 		
 		FoodId foodid = new FoodId();
 		foodid.setMenuId("NaoExiste");
-		foodid.setRestaurantId("T08_Restaurant2");
+		foodid.setRestaurantId("T08_Restaurant1");
 		
 		client.getFood(foodid);
 	}
