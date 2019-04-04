@@ -1,6 +1,7 @@
 package com.forkexec.hub.ws.it;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class SearchDealIT extends BaseIT {
 		f1.setPlate("Arroz");
 		f1.setDessert("Bolo");
 		f1.setPrice(15);
-		f1.setPreparationTime(3);
+		f1.setPreparationTime(1);
 		
 		FoodInit foodinit1 = new FoodInit();
 		foodinit1.setFood(f1);
@@ -53,8 +54,8 @@ public class SearchDealIT extends BaseIT {
 		f2.setId(foodid2);
 		f2.setEntree("Salada de Polvo");
 		f2.setPlate("Arroz");
-		f2.setDessert("Bolo");
-		f2.setPrice(15);
+		f2.setDessert("Bolo de Chocolate");
+		f2.setPrice(1);
 		f2.setPreparationTime(4);
 		
 		FoodInit foodinit2 = new FoodInit();
@@ -104,6 +105,25 @@ public class SearchDealIT extends BaseIT {
 	@Test(expected =InvalidTextFault_Exception.class)
 	public void searchDealWhiteSpaceDescription() throws InvalidTextFault_Exception{
 		client.searchDeal(" ");
+	}
+	
+	//Main Tests
+	@Test
+	public void success() throws InvalidTextFault_Exception{	
+		List<Food> resultados = client.searchDeal("Chocolate");
+		for (int i = 0; i < resultados.size(); i++ ) {
+			
+			assertTrue(resultados.get(i).getDessert().contains("Chocolate") || resultados.get(i).getEntree().contains("Chocolate") || resultados.get(i).getPlate().contains("Chocolate"));
+			if (i != 0)
+				assertTrue(resultados.get(i-1).getPrice() < resultados.get(i).getPrice());
+				
+		}
+	}
+	
+	@Test
+	public void searchDealDoesntFind() throws InvalidTextFault_Exception{	
+		List<Food> resultados = client.searchDeal("NaoExiste");
+		assertTrue(resultados.isEmpty()); 
 	}
 	
 }
