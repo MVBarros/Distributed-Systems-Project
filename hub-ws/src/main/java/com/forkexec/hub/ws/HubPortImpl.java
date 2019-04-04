@@ -360,7 +360,7 @@ public class HubPortImpl implements HubPortType {
 		Collection<String> ids = getRestaurantIds();
 
 		for (String serviceId : ids)
-			initMap.put(serviceId, new ArrayList());
+			initMap.put(serviceId, new ArrayList<MenuInit>());
 
 		for (FoodInit foodInit : initialFoods) {
 			if (foodInit.getFood() == null)
