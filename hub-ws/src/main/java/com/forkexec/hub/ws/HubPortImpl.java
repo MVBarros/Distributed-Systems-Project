@@ -171,7 +171,7 @@ public class HubPortImpl implements HubPortType {
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
 		
 		
-		Hub.getInstance().clearCart(userId);
+		//Hub.getInstance().clearCart(userId);
 		// TODO
 
 	}
