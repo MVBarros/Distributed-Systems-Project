@@ -1,5 +1,7 @@
 package com.forkexec.hub.ws.it;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +17,8 @@ import com.forkexec.hub.ws.FoodId;
 import com.forkexec.hub.ws.FoodInit;
 import com.forkexec.hub.ws.InvalidFoodIdFault_Exception;
 import com.forkexec.hub.ws.InvalidInitFault_Exception;
+import com.forkexec.rst.ws.Menu;
+import com.forkexec.rst.ws.cli.RestaurantClient;
 
 
 public class GetFoodIT extends BaseIT {
@@ -59,24 +63,9 @@ public class GetFoodIT extends BaseIT {
 		foodinit2.setFood(f2);
 		foodinit2.setQuantity(2);
 		
-		//Third foodinit
-		FoodId foodid3 = new FoodId();
-		foodid3.setMenuId("2");
-		foodid3.setRestaurantId("T08_Restaurant2");
 		
-		Food f3 = new Food();
-		f3.setId(foodid3);
-		f3.setEntree("Salada de Polvo");
-		f3.setPlate("Arroz");
-		f3.setDessert("Bolo");
-		f3.setPrice(15);
-		f3.setPreparationTime(4);
 		
-		FoodInit foodinit3 = new FoodInit();
-		foodinit3.setFood(f3);
-		foodinit3.setQuantity(22);
-		
-		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1, foodinit2, foodinit3));
+		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1, foodinit2));
 		client.ctrlInitFood(foodInits);
 
 		
@@ -104,14 +93,6 @@ public class GetFoodIT extends BaseIT {
 	}
 	
 	//Bad input tests
-	@Test
-	public void getFoodSuccess() throws InvalidFoodIdFault_Exception{
-		FoodId foodid = new FoodId();
-		foodid.setMenuId("2");
-		foodid.setRestaurantId("T08_Restaurant1");
-		client.getFood(foodid);
-	}
-	
 	
 	@Test(expected =InvalidFoodIdFault_Exception.class)
 	public void getFoodNullId() throws InvalidFoodIdFault_Exception{
@@ -123,6 +104,16 @@ public class GetFoodIT extends BaseIT {
 		
 		FoodId foodid = new FoodId();
 		foodid.setMenuId(null);
+		foodid.setRestaurantId("T08_Restaurant2");
+		
+		client.getFood(foodid);
+	}
+	
+	@Test(expected =InvalidFoodIdFault_Exception.class)
+	public void getFoodNonExistentMenu() throws InvalidFoodIdFault_Exception{
+		
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("NaoExiste");
 		foodid.setRestaurantId("T08_Restaurant2");
 		
 		client.getFood(foodid);
@@ -149,6 +140,23 @@ public class GetFoodIT extends BaseIT {
 	}
 	
 	//Main Tests
-	
+	/* TODO
+	@Test
+	public void getFoodSuccess() throws InvalidFoodIdFault_Exception{
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("2");
+		foodid.setRestaurantId("T08_Restaurant1");
+		Food f = client.getFood(foodid);
+		
+		RestaurantClient rest = getRestaurantbyId(foodid.getRestaurantId());
+		Menu menu = rest.getMenu(newMenuId(foodid));
+		assertEquals(f.getDessert(), menu.getDessert());
+		assertEquals(f.getEntree(), menu.getEntree());
+		assertEquals(f.getId(), menu.getId());
+		assertEquals(f.getPlate(), menu.getPlate());
+		assertEquals(f.getPreparationTime(), menu.getPreparationTime());
+		assertEquals(f.getPrice(), menu.getPrice() );
+	}
+	*/
 	
 }
