@@ -150,12 +150,15 @@ public class HubPortImpl implements HubPortType {
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
-		if (userId == null || userId.contains(" "))
-			throwInvalidUserId("Invalid user id");
-		if (foodQuantity <= 0)
-			throwInvalidFoodQuantity("Invalid food quantity");
-		if (foodId == null)
-			throwInvalidFoodId("Invalid food id");
+		if (userId == null || userId.contains(" ")) throwInvalidUserId("Invalid user id");
+		if (foodQuantity <= 0) throwInvalidFoodQuantity("Invalid food quantity");
+		if (foodId == null) throwInvalidFoodId("Invalid food id");
+		if (foodId.getMenuId() == null)
+			throwInvalidFoodId("menu can't be null");
+
+		if (foodId.getRestaurantId() == null)
+			throwInvalidFoodId("restaurant can't be null");
+
 
 		try {
 			getPoints().pointsBalance(userId);
