@@ -18,10 +18,13 @@ import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.InvalidPointsFault_Exception;
+import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
+import com.forkexec.rst.ws.BadQuantityFault_Exception;
 import com.forkexec.rst.ws.BadTextFault_Exception;
+import com.forkexec.rst.ws.InsufficientQuantityFault_Exception;
 import com.forkexec.rst.ws.Menu;
 import com.forkexec.rst.ws.MenuId;
 import com.forkexec.rst.ws.MenuInit;
@@ -52,6 +55,7 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
+		// TODO Add cart to user
 		try {
 			getPoints().activateUser(userId);
 		} catch (EmailAlreadyExistsFault_Exception e) {
@@ -169,9 +173,55 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public FoodOrder orderCart(String userId)
 			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
-		// TODO
 
-		return null;
+		List<FoodOrderItem> items = cartContents(userId);
+		if (items.size() == 0)
+			throwEmptyCart("Cart is empty");
+
+		int totalpoints = 0;
+		int price = 0;
+		for (FoodOrderItem item : items) {
+
+			try {
+				price = getFood(item.getFoodId()).getPrice();
+			} catch (InvalidFoodIdFault_Exception e) {
+				/* will never happen */
+				throw new RuntimeException();
+			}
+
+			totalpoints += item.getFoodQuantity() * price;
+
+		}
+		try {
+		getPoints().spendPoints(userId, totalpoints);
+		}catch (NotEnoughBalanceFault_Exception  e) {
+			throwNotEnoughPoints("");
+		}catch (Exception e) {
+			/*Will never happen*/
+			throw new RuntimeException();
+		}
+		
+		for(FoodOrderItem item: items) {
+			try {
+				getRestaurantbyId(item.getFoodId().getRestaurantId()).orderMenu(newMenuId(item.getFoodId()), item.getFoodQuantity());
+			} catch (BadMenuIdFault_Exception e) {
+				/*will never happen*/
+				throw new RuntimeException();
+			} catch (BadQuantityFault_Exception e) {
+				/*will never happen*/
+				throw new RuntimeException();
+			} catch (InsufficientQuantityFault_Exception e) {
+				// TODO What
+			}
+		}
+		
+		FoodOrder order = new FoodOrder();
+		FoodOrderId orderId = new FoodOrderId();
+		orderId.setId(Hub.getInstance().getcurrentOrderId());
+		order.setFoodOrderId(orderId);
+		
+		/*nao da para fazer set dos items do order*/
+		return order;
 	}
 
 	@Override
@@ -509,5 +559,17 @@ public class HubPortImpl implements HubPortType {
 		InvalidInitFault faultInfo = new InvalidInitFault();
 		faultInfo.message = message;
 		throw new InvalidInitFault_Exception(message, faultInfo);
+	}
+
+	private void throwEmptyCart(final String message) throws EmptyCartFault_Exception {
+		EmptyCartFault faultInfo = new EmptyCartFault();
+		faultInfo.message = message;
+		throw new EmptyCartFault_Exception(message, faultInfo);
+	}
+	
+	private void throwNotEnoughPoints(final String message) throws NotEnoughPointsFault_Exception {
+		NotEnoughPointsFault faultInfo = new NotEnoughPointsFault();
+		faultInfo.message = message;
+		throw new NotEnoughPointsFault_Exception(message, faultInfo);
 	}
 }
