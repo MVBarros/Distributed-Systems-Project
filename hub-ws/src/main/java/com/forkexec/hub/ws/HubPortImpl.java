@@ -13,6 +13,7 @@ import javax.jws.WebService;
 
 import com.forkexec.cc.ws.cli.CCClient;
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
@@ -151,8 +152,10 @@ public class HubPortImpl implements HubPortType {
 	public Food getFood(FoodId foodId) throws InvalidFoodIdFault_Exception {
 		if (foodId == null)
 			throwInvalidFoodId("foodId can't be null");
+		
 		if(foodId.getMenuId() == null)
 			throwInvalidFoodId("menu can't be null");
+		
 		
 		if(foodId.getRestaurantId() == null)
 			throwInvalidFoodId("restaurant can't be null");
@@ -164,15 +167,14 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidFoodId("Restaurant does not exist");
 		}
 		
-		MenuId menuId = null;
+		Menu menu = null;
 		try {
-			menuId = client.getMenu(newMenuId(foodId)).getId();
+			menu = client.getMenu(newMenuId(foodId));
 		}catch (BadMenuIdFault_Exception e) {
 			throwInvalidFoodId("No such food with that name in that restaurant");
 		}
 		
-		
-		return null;
+		return newFood(menu, foodId.getRestaurantId());
 
 	}
 
@@ -248,7 +250,11 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
-		// TODO Auto-generated method stub
+		try {
+		getPoints().ctrlInit(startPoints);
+		}catch (BadInitFault_Exception e) {
+			throwInvalidInit("cannot init Points with those points");
+		}
 
 	}
 	
@@ -367,5 +373,11 @@ public class HubPortImpl implements HubPortType {
 		InvalidFoodIdFault faultInfo = new InvalidFoodIdFault();
 		faultInfo.message = message;
 		throw new InvalidFoodIdFault_Exception(message, faultInfo);
+	}
+	
+	private void throwInvalidInit(final String message) throws InvalidInitFault_Exception {
+		InvalidInitFault faultInfo = new InvalidInitFault();
+		faultInfo.message = message;
+		throw new InvalidInitFault_Exception(message, faultInfo);
 	}
 }
