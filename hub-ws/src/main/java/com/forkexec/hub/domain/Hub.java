@@ -10,7 +10,6 @@ import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodInit;
 //import com.forkexec.rst.domain.BadMenuInitiationException;
 //import com.forkexec.rst.domain.RestaurantMenu;
-import com.forkexec.rst.domain.BadMenuIdException;
 
 
 
@@ -54,12 +53,9 @@ public class Hub {
 	public synchronized void add2Cart(String userId, String foodid, Integer quantity) {
 		if (!carts.containsKey(userId)) {
 			carts.put(userId, new HubOrder());
-		}
-			
+		}	
 		HubOrder order = carts.get(userId);
-		
 		order.addToCart(foodid, quantity);
-		
 		carts.put(userId, order);
 	}
 	
