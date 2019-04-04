@@ -56,19 +56,19 @@ public class Hub {
 	public synchronized HubFood getFood(String foodId) {
 		return foodsMap.get(foodId);
 	}
+/*
 
-
-		for (HubFood menu : foods) {
+		for (HubFood menu : foodsMap) {
 			if (!acceptFood(menu)) {
 				/*remove all menus from restaurant*/
 				//reset(); 
 				//throw new BadMenuInitiationException("Invalid menu initiation");
-			}
+		/*	}
 			foodsMap.put(menu.getId(), menu);
 		}
+	*/
 		
-		
-	}
+	
 	
 	public boolean acceptFood(HubFood food) {
 		return (Stream.of(food.getId(), food.getEntree(), food.getPlate(), food.getDessert())
