@@ -1,7 +1,8 @@
 package com.forkexec.hub.ws.it;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.forkexec.hub.ws.InvalidUserIdFault_Exception;
@@ -19,15 +20,20 @@ public class ActivateAccountIT extends BaseIT {
 	public void successActivateAccount() throws InvalidUserIdFault_Exception {
 		client.activateAccount("ola@ola.com");
 
-		// no exception is thrown
+		//Clients are created
+		assertEquals(client.accountBalance("ola@ola.com"), 100);
+
 	}
 
 	@Test
 	public void successActivate2Accounts() throws InvalidUserIdFault_Exception {
 		client.activateAccount("ola@ola.com");
 		client.activateAccount("ola2@ola.com");
+		
+		//Clients are created
+		assertEquals(client.accountBalance("ola@ola.com"), 100);
+		assertEquals(client.accountBalance("ola2@ola.com"), 100);
 
-		// no exception is thrown
 	}
 	
 	//Bad Input Tests
