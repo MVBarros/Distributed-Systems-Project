@@ -59,9 +59,9 @@ public class Hub {
 		carts.put(userId, order);
 	}
 	
-	public synchronized void clearCart(String userId) throws InvalidUserIdException {
+	public synchronized void clearCart(String userId) {
 		if (!carts.containsKey(userId)) 
-			throwInvalidUserIdException("Id not registered in hub");
+			return;
 		carts.get(userId).clear();
 	}
 	
@@ -70,13 +70,7 @@ public class Hub {
 		return Integer.toString(currentOrderId);
 	}
 
-	
-	/*** 		EXCEPTIONS 		***/
-	
-	
-	private void throwInvalidUserIdException(final String message) throws InvalidUserIdException {
-		throw new InvalidUserIdException(message);
-	}
+
 	
 	/**Control Functions*/
 	public void clear() {

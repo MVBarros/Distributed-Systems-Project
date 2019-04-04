@@ -54,7 +54,6 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
-		// TODO Add cart to user
 		try {
 			getPoints().activateUser(userId);
 		} catch (EmailAlreadyExistsFault_Exception e) {
@@ -170,9 +169,14 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
 		
+		if (userId == null || userId.contains(" ")) throwInvalidUserId("Invalid user id");
+		try {
+			getPoints().pointsBalance(userId);
+		} catch (InvalidEmailFault_Exception e) {
+			throwInvalidUserId("User id isn't registered");
+		}
 		
-		//Hub.getInstance().clearCart(userId);
-		// TODO
+		Hub.getInstance().clearCart(userId);
 
 	}
 
