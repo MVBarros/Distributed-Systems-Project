@@ -1,6 +1,5 @@
 package com.forkexec.hub.ws.it;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import org.junit.Test;
 import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodId;
 import com.forkexec.hub.ws.FoodInit;
-import com.forkexec.hub.ws.InvalidFoodIdFault_Exception;
 import com.forkexec.hub.ws.InvalidInitFault_Exception;
 import com.forkexec.hub.ws.InvalidTextFault_Exception;
 
