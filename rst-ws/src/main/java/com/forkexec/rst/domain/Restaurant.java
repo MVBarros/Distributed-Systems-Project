@@ -71,7 +71,9 @@ public class Restaurant {
 				Stream.of(menu.getPrice(), menu.getPreparationTime(), menu.getQuantity())
 				.allMatch(e -> e > 0))
 				&&
-				!menus.containsKey(menu.getId());
+				!menus.containsKey(menu.getId())
+				&&
+				!menu.getId().contains("\n");
 	}
 	
 
