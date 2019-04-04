@@ -155,11 +155,13 @@ public class HubPortImpl implements HubPortType {
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 		
 		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + ' ' + foodId.getRestaurantId(), foodQuantity );
+		// TODO EXC
 
 	}
 
 	@Override
 	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
+		Hub.getInstance().clearCart(userId);
 		// TODO
 
 	}
