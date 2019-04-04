@@ -39,6 +39,15 @@ public class Hub {
 		return SingletonHolder.INSTANCE;
 	}
 	
+	public synchronized HubFood addFood(HubFood f) {
+		foods.put(f.getId(), f);
+		return f;
+	}
+	
+	public synchronized HubFood getFood(String foodId) {
+		return foods.get(foodId);
+	}
+
 
 
 
