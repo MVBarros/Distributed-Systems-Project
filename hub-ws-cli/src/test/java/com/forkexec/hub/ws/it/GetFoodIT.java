@@ -1,5 +1,7 @@
 package com.forkexec.hub.ws.it;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +17,8 @@ import com.forkexec.hub.ws.FoodId;
 import com.forkexec.hub.ws.FoodInit;
 import com.forkexec.hub.ws.InvalidFoodIdFault_Exception;
 import com.forkexec.hub.ws.InvalidInitFault_Exception;
+import com.forkexec.rst.ws.Menu;
+import com.forkexec.rst.ws.cli.RestaurantClient;
 
 
 public class GetFoodIT extends BaseIT {
@@ -104,13 +108,7 @@ public class GetFoodIT extends BaseIT {
 	}
 	
 	//Bad input tests
-	@Test
-	public void getFoodSuccess() throws InvalidFoodIdFault_Exception{
-		FoodId foodid = new FoodId();
-		foodid.setMenuId("2");
-		foodid.setRestaurantId("T08_Restaurant1");
-		client.getFood(foodid);
-	}
+	
 	
 	
 	@Test(expected =InvalidFoodIdFault_Exception.class)
@@ -123,6 +121,16 @@ public class GetFoodIT extends BaseIT {
 		
 		FoodId foodid = new FoodId();
 		foodid.setMenuId(null);
+		foodid.setRestaurantId("T08_Restaurant2");
+		
+		client.getFood(foodid);
+	}
+	
+	@Test(expected =InvalidFoodIdFault_Exception.class)
+	public void getFoodNonExistentMenu() throws InvalidFoodIdFault_Exception{
+		
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("NaoExiste");
 		foodid.setRestaurantId("T08_Restaurant2");
 		
 		client.getFood(foodid);
@@ -149,6 +157,23 @@ public class GetFoodIT extends BaseIT {
 	}
 	
 	//Main Tests
+	
+	@Test
+	public void getFoodSuccess() throws InvalidFoodIdFault_Exception{
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("2");
+		foodid.setRestaurantId("T08_Restaurant1");
+		Food f = client.getFood(foodid);
+		
+		RestaurantClient rest = getRestaurantbyId(foodid.getRestaurantId());
+		Menu menu = rest.getMenu(newMenuId(foodid));
+		assertEquals(f.getDessert(), menu.getDessert());
+		assertEquals(f.getEntree(), menu.getEntree());
+		assertEquals(f.getId(), menu.getId());
+		assertEquals(f.getPlate(), menu.getPlate());
+		assertEquals(f.getPreparationTime(), menu.getPreparationTime());
+		assertEquals(f.getPrice(), menu.getPrice() );
+	}
 	
 	
 }
