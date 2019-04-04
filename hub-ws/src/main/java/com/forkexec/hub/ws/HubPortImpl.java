@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import javax.jws.WebService;
 
@@ -53,10 +52,9 @@ public class HubPortImpl implements HubPortType {
 		try {
 			getPoints().activateUser(userId);
 		} catch (EmailAlreadyExistsFault_Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throwInvalidUserId("Email given already exists");			
 		} catch (InvalidEmailFault_Exception e) {
-			e.printStackTrace();
+			throwInvalidUserId("Email not valid");
 		}
 	}
 
@@ -170,6 +168,7 @@ public class HubPortImpl implements HubPortType {
 	public FoodOrder orderCart(String userId)
 			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
 		// TODO
+		
 		return null;
 	}
 
