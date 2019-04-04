@@ -15,6 +15,7 @@ import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
+import com.forkexec.rst.ws.Menu;
 import com.forkexec.rst.ws.MenuId;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
@@ -129,7 +130,6 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidFoodId("No such food with that name in that restaurant");
 		}
 		
-		FoodId foodId1 = newFoodId(menuId, foodId.getRestaurantId());
 		
 		return null;
 
@@ -288,6 +288,23 @@ public class HubPortImpl implements HubPortType {
 		foodId.setMenuId(id.getId());
 		foodId.setRestaurantId(restaurantId);
 		return foodId;
+	}
+	
+	private Food newFood(Menu menu, String restaurantId) {
+		
+		Food food = new Food();
+		food.setDessert(menu.getDessert());
+		food.setEntree(food.getEntree());
+		food.setPlate(menu.getPlate());
+		food.setPreparationTime(menu.getPreparationTime());
+		food.setPrice(menu.getPreparationTime());
+		
+		FoodId foodId = new FoodId();
+		foodId.setMenuId(menu.getId().getId());
+		foodId.setRestaurantId(restaurantId);
+		food.setId(foodId);
+		
+		return food;
 	}
 
 	// Exception helpers -----------------------------------------------------
