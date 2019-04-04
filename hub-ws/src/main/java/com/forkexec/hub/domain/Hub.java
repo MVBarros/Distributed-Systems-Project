@@ -23,9 +23,9 @@ import com.forkexec.hub.ws.FoodInit;
 public class Hub {
 
 	// clientId --> (FoodId & RestaurantId) + quantity 
-	private Map<String, Map<String, Integer>> carts = new ConcurrentHashMap<String, Map<String, Integer>>();
-
-
+	private Map<String, HubOrder> carts = new ConcurrentHashMap<String, HubOrder>();
+	
+	private volatile int currentOrderId = 0;
 
 
 	
@@ -51,14 +51,25 @@ public class Hub {
 	
 
 	public synchronized void add2Cart(String userId, String foodid, Integer quantity) {
-		if (!carts.containsKey(userId))
-			//TODO EXCEPTION
-		carts.get(userId).put(foodid, quantity);
+		if (!carts.containsKey(userId)) {
+			carts.put(userId, new HubOrder());
+		}
+			
+		HubOrder order = carts.get(userId);
+		
+		order.addToCart(foodid, quantity);
+		
+		carts.put(userId, order);
 	}
 	
 	public synchronized void clearCart(String userId) {
 		// TODO EXCAP
 		carts.get(userId).clear();
+	}
+	
+	public synchronized String getcurrentOrderId() {
+		currentOrderId++;
+		return Integer.toString(currentOrderId);
 	}
 
 		
