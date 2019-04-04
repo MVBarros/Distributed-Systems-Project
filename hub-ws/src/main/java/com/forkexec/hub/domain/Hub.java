@@ -7,8 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import com.forkexec.hub.ws.FoodInit;
-import com.forkexec.rst.domain.BadMenuInitiationException;
-import com.forkexec.rst.domain.RestaurantMenu;
+//import com.forkexec.rst.domain.BadMenuInitiationException;
+//import com.forkexec.rst.domain.RestaurantMenu;
 
 
 
@@ -45,8 +45,18 @@ public class Hub {
 		return SingletonHolder.INSTANCE;
 	}
 	
-	public void initFood(List<HubFood> foods) {
+
+	public void initFood(List<HubFood> foods) {}
 		//reset();
+	public synchronized HubFood addFood(HubFood f) {
+		foodsMap.put(f.getId(), f);
+		return f;
+	}
+	
+	public synchronized HubFood getFood(String foodId) {
+		return foods.get(foodId);
+	}
+
 
 		for (HubFood menu : foods) {
 			if (!acceptFood(menu)) {
