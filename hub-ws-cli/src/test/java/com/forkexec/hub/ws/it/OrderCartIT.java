@@ -20,7 +20,6 @@ import com.forkexec.hub.ws.FoodOrder;
 import com.forkexec.hub.ws.InvalidFoodIdFault_Exception;
 import com.forkexec.hub.ws.InvalidFoodQuantityFault_Exception;
 import com.forkexec.hub.ws.InvalidInitFault_Exception;
-import com.forkexec.hub.ws.InvalidTextFault_Exception;
 import com.forkexec.hub.ws.InvalidUserIdFault_Exception;
 import com.forkexec.hub.ws.NotEnoughPointsFault_Exception;
 
@@ -41,33 +40,18 @@ public class OrderCartIT extends BaseIT {
 		f1.setEntree("Salada de Polvo");
 		f1.setPlate("Arroz");
 		f1.setDessert("Bolo");
-		f1.setPrice(15);
+		f1.setPrice(51);
 		f1.setPreparationTime(1);
 		
 		FoodInit foodinit1 = new FoodInit();
 		foodinit1.setFood(f1);
 		foodinit1.setQuantity(2);
 		
-		//Second foodinit
-		FoodId foodid2 = new FoodId();
-		foodid2.setMenuId("2");
-		foodid2.setRestaurantId("T08_Restaurant1");
-		
-		Food f2 = new Food();
-		f2.setId(foodid2);
-		f2.setEntree("Salada de Polvo");
-		f2.setPlate("Arroz");
-		f2.setDessert("Bolo de Chocolate");
-		f2.setPrice(1);
-		f2.setPreparationTime(4);
-		
-		FoodInit foodinit2 = new FoodInit();
-		foodinit2.setFood(f2);
-		foodinit2.setQuantity(2);
+
 		
 		
 		
-		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1, foodinit2));
+		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1));
 		client.ctrlInitFood(foodInits);
 
 		client.activateAccount("teste@mail.com");
@@ -112,7 +96,7 @@ public class OrderCartIT extends BaseIT {
 	@Test
 	public void sucess() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception, InvalidFoodIdFault_Exception  {
 		FoodId foodid = new FoodId();
-		foodid.setMenuId("2");
+		foodid.setMenuId("1");
 		foodid.setRestaurantId("T08_Restaurant1");
 		client.clearCart("teste@mail.com");
 		
@@ -136,11 +120,16 @@ public class OrderCartIT extends BaseIT {
 		client.orderCart("teste@mail.com");
 	}
 	
-	@Test(expected =EmptyCartFault_Exception.class)
-	public void orderCartNotEnoughPoints() throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception, InvalidFoodIdFault_Exception  {
+	@Test(expected =NotEnoughPointsFault_Exception.class)
+	public void orderCartNotEnoughPoints() throws InvalidUserIdFault_Exception, InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, EmptyCartFault_Exception, NotEnoughPointsFault_Exception {
 	
 		client.clearCart("teste@mail.com");
-
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("1");
+		foodid.setRestaurantId("T08_Restaurant1");
+		client.clearCart("teste@mail.com");
+		
+		client.addFoodToCart("teste@mail.com", foodid, 2);
 		client.orderCart("teste@mail.com");
 	}
 	
