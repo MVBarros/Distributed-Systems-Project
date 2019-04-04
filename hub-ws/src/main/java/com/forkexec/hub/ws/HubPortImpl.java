@@ -10,6 +10,7 @@ import javax.jws.WebService;
 
 import com.forkexec.cc.ws.cli.CCClient;
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.cli.RestaurantClient;
@@ -84,6 +85,12 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public int accountBalance(String userId) throws InvalidUserIdFault_Exception {
+		PointsClient client = getPoints();
+		try {
+		client.pointsBalance(userId);
+		}catch (InvalidEmailFault_Exception e) {
+			
+		}
 		// TODO
 		return 0;
 	}
@@ -203,13 +210,13 @@ public class HubPortImpl implements HubPortType {
 			throw new RuntimeException();
 		}
 		try {
-		return new PointsClient(binding);
-		}catch (PointsClientException e) {
+			return new PointsClient(binding);
+		} catch (PointsClientException e) {
 			System.out.println("Cannot Reach Points server at " + binding + " got exception" + e);
 			throw new RuntimeException();
 		}
 	}
-	
+
 	public CCClient getCreditCard() {
 
 		return new CCClient();
@@ -236,5 +243,10 @@ public class HubPortImpl implements HubPortType {
 //		faultInfo.message = message;
 //		throw new BadInitFault_Exception(message, faultInfo);
 //	}
-
+	
+	private void throwInvalidUser(final String message) throws InvalidUserIdFault_Exception {
+		InvalidUserIdFault faultInfo = new InvalidUserIdFault();
+		faultInfo.message = message;
+		throw new InvalidUserIdFault_Exception(message, faultInfo);
+	}
 }
