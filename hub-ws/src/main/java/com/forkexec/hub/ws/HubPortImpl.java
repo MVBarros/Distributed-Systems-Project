@@ -150,23 +150,25 @@ public class HubPortImpl implements HubPortType {
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
-		if (userId == null || userId.contains(" ")) throwInvalidUserId("Invalid user id");
-		if (foodQuantity <= 0) throwInvalidFoodQuantity("Invalid food quantity");
-		if (foodId == null) throwInvalidFoodId("Invalid food id");
+		if (userId == null || userId.contains(" "))
+			throwInvalidUserId("Invalid user id");
+		if (foodQuantity <= 0)
+			throwInvalidFoodQuantity("Invalid food quantity");
+		if (foodId == null)
+			throwInvalidFoodId("Invalid food id");
 		if (foodId.getMenuId() == null)
 			throwInvalidFoodId("menu can't be null");
 
 		if (foodId.getRestaurantId() == null)
 			throwInvalidFoodId("restaurant can't be null");
 
-
 		try {
 			getPoints().pointsBalance(userId);
 		} catch (InvalidEmailFault_Exception e) {
 			throwInvalidUserId("Invalid user id");
 		}
-		
-		/*Order Id is menuId\nrestaurantId*/
+
+		/* Order Id is menuId\nrestaurantId */
 		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + "\n" + foodId.getRestaurantId(), foodQuantity);
 
 	}
@@ -291,16 +293,16 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidUserId("Id given isn't valid, got exception" + e);
 		}
 		Map<String, Integer> carts = Hub.getInstance().getCart(userId);
-		
-		for(String cartName: carts.keySet()) {
+
+		for (String cartName : carts.keySet()) {
 			String[] ids = cartName.split("\\n");
 			String restaurantId = ids[0];
 			String menuId = ids[1];
-			
+
 			FoodId foodId = new FoodId();
 			foodId.setMenuId(menuId);
 			foodId.setRestaurantId(restaurantId);
-			
+
 			int quantity = carts.get(cartName);
 
 			FoodOrderItem item = new FoodOrderItem();
@@ -308,7 +310,7 @@ public class HubPortImpl implements HubPortType {
 			item.setFoodQuantity(quantity);
 			items.add(item);
 		}
-		
+
 		return items;
 	}
 
@@ -345,8 +347,10 @@ public class HubPortImpl implements HubPortType {
 			});
 
 			try {
-				String binding = this.endpointManager.getUddiNaming().lookup("T08_Points");
-				responses.append(new PointsClient(binding).ctrlPing("hub").concat("\n"));
+				bindingsCol = this.endpointManager.getUddiNaming().list("T08_Points%");
+				for (String binding : bindingsCol) {
+					responses.append(new PointsClient(binding).ctrlPing("hub").concat("\n"));
+				}
 			} catch (PointsClientException e) {
 				throw new RuntimeException();
 			}
@@ -491,7 +495,7 @@ public class HubPortImpl implements HubPortType {
 	public PointsClient getPoints() {
 		String binding = null;
 		try {
-			binding = this.endpointManager.getUddiNaming().lookup("T08_Points");
+			binding = this.endpointManager.getUddiNaming().lookup("T08_Points%");
 		} catch (UDDINamingException e) {
 			System.out.println("UDDI Service unreachable, got exception" + e);
 			throw new RuntimeException();
@@ -527,13 +531,11 @@ public class HubPortImpl implements HubPortType {
 		menuId.setId(id.getMenuId());
 		return menuId;
 	}
-/*
-	private FoodId newFoodId(MenuId id, String restaurantId) {
-		FoodId foodId = new FoodId();
-		foodId.setMenuId(id.getId());
-		foodId.setRestaurantId(restaurantId);
-		return foodId;
-	}*/
+	/*
+	 * private FoodId newFoodId(MenuId id, String restaurantId) { FoodId foodId =
+	 * new FoodId(); foodId.setMenuId(id.getId());
+	 * foodId.setRestaurantId(restaurantId); return foodId; }
+	 */
 
 	private Food newFood(Menu menu, String restaurantId) {
 
