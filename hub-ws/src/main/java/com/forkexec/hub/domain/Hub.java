@@ -70,8 +70,15 @@ public class Hub {
 		return Integer.toString(currentOrderId);
 	}
 
-	
 
+	
+	/**Control Functions*/
+	public void clear() {
+		carts = new ConcurrentHashMap<String, HubOrder>();
+		currentOrderId = 0;
+
+	}
+	
 
 	
 }
