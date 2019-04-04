@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import javax.jws.WebService;
@@ -22,6 +23,7 @@ import com.forkexec.rst.ws.BadMenuIdFault_Exception;
 import com.forkexec.rst.ws.BadTextFault_Exception;
 import com.forkexec.rst.ws.Menu;
 import com.forkexec.rst.ws.MenuId;
+import com.forkexec.rst.ws.MenuInit;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
 
@@ -70,8 +72,8 @@ public class HubPortImpl implements HubPortType {
 	public List<Food> searchDeal(String description) throws InvalidTextFault_Exception {
 		Map<String, RestaurantClient> restaurants = getRestaurants();
 		List<Food> foods = new ArrayList<>();
-		
-		restaurants.forEach((restID, rest) ->   {
+
+		restaurants.forEach((restID, rest) -> {
 			try {
 				rest.searchMenus(description).forEach(menu -> foods.add(newFood(menu, restID)));
 			} catch (BadTextFault_Exception e) {
@@ -79,13 +81,13 @@ public class HubPortImpl implements HubPortType {
 				e.printStackTrace();
 			}
 		});
-		
+
 		Collections.sort(foods, new Comparator<Food>() {
-		    @Override
-		    public int compare(Food lhs, Food rhs) {
-		        // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
-		        return lhs.price < rhs.price ? -1 : (lhs.price > rhs.price) ? 1 : 0;
-		    }
+			@Override
+			public int compare(Food lhs, Food rhs) {
+				// -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+				return lhs.price < rhs.price ? -1 : (lhs.price > rhs.price) ? 1 : 0;
+			}
 		});
 		return foods;
 	}
@@ -94,8 +96,8 @@ public class HubPortImpl implements HubPortType {
 	public List<Food> searchHungry(String description) throws InvalidTextFault_Exception {
 		Map<String, RestaurantClient> restaurants = getRestaurants();
 		List<Food> foods = new ArrayList<>();
-		
-		restaurants.forEach((restID, rest) ->   {
+
+		restaurants.forEach((restID, rest) -> {
 			try {
 				rest.searchMenus(description).forEach(menu -> foods.add(newFood(menu, restID)));
 			} catch (BadTextFault_Exception e) {
@@ -103,15 +105,16 @@ public class HubPortImpl implements HubPortType {
 				e.printStackTrace();
 			}
 		});
-		
+
 		Collections.sort(foods, new Comparator<Food>() {
-		    @Override
-		    public int compare(Food lhs, Food rhs) {
-		        // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
-		        return lhs.getPreparationTime() < rhs.getPreparationTime() ? -1 : (lhs.getPreparationTime() > rhs.getPreparationTime()) ? 1 : 0;
-		    }
+			@Override
+			public int compare(Food lhs, Food rhs) {
+				// -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+				return lhs.getPreparationTime() < rhs.getPreparationTime() ? -1
+						: (lhs.getPreparationTime() > rhs.getPreparationTime()) ? 1 : 0;
+			}
 		});
-		
+
 		return foods;
 	}
 
@@ -139,9 +142,9 @@ public class HubPortImpl implements HubPortType {
 	public int accountBalance(String userId) throws InvalidUserIdFault_Exception {
 
 		int points = 0;
-		
+
 		try {
-			points = getPoints().pointsBalance(userId);	
+			points = getPoints().pointsBalance(userId);
 		} catch (InvalidEmailFault_Exception e) {
 			throwInvalidUserId("Id given isn't valid, got exception" + e);
 		}
@@ -152,28 +155,26 @@ public class HubPortImpl implements HubPortType {
 	public Food getFood(FoodId foodId) throws InvalidFoodIdFault_Exception {
 		if (foodId == null)
 			throwInvalidFoodId("foodId can't be null");
-		
-		if(foodId.getMenuId() == null)
+
+		if (foodId.getMenuId() == null)
 			throwInvalidFoodId("menu can't be null");
-		
-		
-		if(foodId.getRestaurantId() == null)
+
+		if (foodId.getRestaurantId() == null)
 			throwInvalidFoodId("restaurant can't be null");
-		
+
 		RestaurantClient client = getRestaurantbyId(foodId.getRestaurantId());
-		
-		
+
 		if (client == null) {
 			throwInvalidFoodId("Restaurant does not exist");
 		}
-		
+
 		Menu menu = null;
 		try {
 			menu = client.getMenu(newMenuId(foodId));
-		}catch (BadMenuIdFault_Exception e) {
+		} catch (BadMenuIdFault_Exception e) {
 			throwInvalidFoodId("No such food with that name in that restaurant");
 		}
-		
+
 		return newFood(menu, foodId.getRestaurantId());
 
 	}
@@ -244,24 +245,85 @@ public class HubPortImpl implements HubPortType {
 	/** Set variables with specific values. */
 	@Override
 	public void ctrlInitFood(List<FoodInit> initialFoods) throws InvalidInitFault_Exception {
-		
+		if (initialFoods == null) {
+			throwInvalidInit("initialFoods can't be null");
+		}
 
+		if (initialFoods.contains(null))
+			throwInvalidInit("Cannot Init null food");
+
+		Map<String, List<MenuInit>> initMap = new ConcurrentHashMap<>();
+
+		Collection<String> ids = getRestaurantIds();
+
+		for (String serviceId : ids)
+			initMap.put(serviceId, new ArrayList());
+
+		for (FoodInit foodInit : initialFoods) {
+			if (foodInit.getFood() == null)
+				throwInvalidInit("Cannot Init null food");
+
+			if (foodInit.getFood().getId() == null)
+				throwInvalidInit("Cannot Init food with null Id");
+
+			MenuInit init = newMenuInit(foodInit);
+
+			List<MenuInit> inits = initMap.get(foodInit.getFood().getId().getRestaurantId());
+
+			if (inits == null) {
+				throwInvalidInit("No such restaurant");
+			}
+			inits.add(init);
+
+		}
+	
+	for (String serviceId: ids) {
+		try {
+		getRestaurantbyId(serviceId).ctrlInit(initMap.get(serviceId));
+		}catch (com.forkexec.rst.ws.BadInitFault_Exception e) {
+			throwInvalidInit("Invalid Menu to init");
+			
+		}
+	}
+	
 	}
 
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
 		try {
-		getPoints().ctrlInit(startPoints);
-		}catch (BadInitFault_Exception e) {
+			getPoints().ctrlInit(startPoints);
+		} catch (BadInitFault_Exception e) {
 			throwInvalidInit("cannot init Points with those points");
 		}
 
 	}
-	
+
 	public RestaurantClient getRestaurantbyId(String id) {
-		
 
 		return getRestaurants().get(id);
+
+	}
+
+	public Collection<String> getRestaurantIds() {
+		Collection<String> ids = new ArrayList<String>();
+
+		Collection<String> bindingsCol = null;
+		try {
+			bindingsCol = this.endpointManager.getUddiNaming().list("T08_Restaurant%");
+		} catch (UDDINamingException e) {
+			System.out.println("UDDI Service unreachable, got exception" + e);
+			throw new RuntimeException();
+		}
+
+		int i = 1;
+
+		for (@SuppressWarnings("unused")
+		String binding : bindingsCol) {
+			ids.add("T08_Restaurant" + i);
+			i++;
+		}
+
+		return ids;
 
 	}
 
@@ -275,16 +337,18 @@ public class HubPortImpl implements HubPortType {
 		}
 
 		Map<String, RestaurantClient> restaurants = new HashMap<>();
+
 		int i = 1;
 
-		bindingsCol.stream().forEach(binding -> {
+		for (String binding : bindingsCol) {
 			try {
 				restaurants.put("T08_Restaurant" + i, new RestaurantClient(binding));
+				i++;
 			} catch (RestaurantClientException e) {
 				System.out.println("Cannot Reach restaurant at " + binding + " got exception" + e);
 				throw new RuntimeException();
 			}
-		});
+		}
 
 		return restaurants;
 
@@ -323,35 +387,53 @@ public class HubPortImpl implements HubPortType {
 	// info.setAvailableCars(park.getAvailableCars());
 	// return info;
 	// }
-	
+
 	private MenuId newMenuId(FoodId id) {
 		MenuId menuId = new MenuId();
 		menuId.setId(id.getMenuId());
 		return menuId;
 	}
-	
+
 	private FoodId newFoodId(MenuId id, String restaurantId) {
 		FoodId foodId = new FoodId();
 		foodId.setMenuId(id.getId());
 		foodId.setRestaurantId(restaurantId);
 		return foodId;
 	}
-	
+
 	private Food newFood(Menu menu, String restaurantId) {
-		
+
 		Food food = new Food();
 		food.setDessert(menu.getDessert());
 		food.setEntree(food.getEntree());
 		food.setPlate(menu.getPlate());
 		food.setPreparationTime(menu.getPreparationTime());
 		food.setPrice(menu.getPreparationTime());
-		
+
 		FoodId foodId = new FoodId();
 		foodId.setMenuId(menu.getId().getId());
 		foodId.setRestaurantId(restaurantId);
 		food.setId(foodId);
-		
+
 		return food;
+	}
+
+	private MenuInit newMenuInit(FoodInit foodInit) {
+		MenuInit menuInit = new MenuInit();
+		MenuId id = newMenuId(foodInit.getFood().getId());
+
+		Menu menu = new Menu();
+		menu.setDessert(foodInit.getFood().getDessert());
+		menu.setEntree(foodInit.getFood().getEntree());
+		menu.setPlate(foodInit.getFood().getPlate());
+		menu.setId(id);
+		menu.setPreparationTime(foodInit.getFood().getPreparationTime());
+		menu.setPrice(foodInit.getFood().getPrice());
+
+		menuInit.setMenu(menu);
+		menuInit.setQuantity(foodInit.getQuantity());
+
+		return menuInit;
 	}
 
 	// Exception helpers -----------------------------------------------------
@@ -368,13 +450,13 @@ public class HubPortImpl implements HubPortType {
 		faultInfo.message = message;
 		throw new InvalidUserIdFault_Exception(message, faultInfo);
 	}
-	
+
 	private void throwInvalidFoodId(final String message) throws InvalidFoodIdFault_Exception {
 		InvalidFoodIdFault faultInfo = new InvalidFoodIdFault();
 		faultInfo.message = message;
 		throw new InvalidFoodIdFault_Exception(message, faultInfo);
 	}
-	
+
 	private void throwInvalidInit(final String message) throws InvalidInitFault_Exception {
 		InvalidInitFault faultInfo = new InvalidInitFault();
 		faultInfo.message = message;

@@ -21,10 +21,6 @@ import com.forkexec.hub.ws.FoodInit;
  */
 public class Hub {
 	
-
-	private Map<String, HubFood> foodsMap = new ConcurrentHashMap<>();
-
-	
 	
 	// Singleton -------------------------------------------------------------
 
@@ -46,38 +42,5 @@ public class Hub {
 	}
 	
 
-	public void initFood(List<HubFood> foods) {}
-		//reset();
-	public synchronized HubFood addFood(HubFood f) {
-		foodsMap.put(f.getId(), f);
-		return f;
-	}
-	
-	public synchronized HubFood getFood(String foodId) {
-		return foodsMap.get(foodId);
-	}
-/*
-
-		for (HubFood menu : foodsMap) {
-			if (!acceptFood(menu)) {
-				/*remove all menus from restaurant*/
-				//reset(); 
-				//throw new BadMenuInitiationException("Invalid menu initiation");
-		/*	}
-			foodsMap.put(menu.getId(), menu);
-		}
-	*/
-		
-	
-	
-	public boolean acceptFood(HubFood food) {
-		return (Stream.of(food.getId(), food.getEntree(), food.getPlate(), food.getDessert())
-				.noneMatch(e-> (e == null) || ((e.trim().isEmpty()))) 
-				&& 
-				Stream.of(food.getPrice(), food.getPreparationTime(), food.getQuantity())
-				.allMatch(e -> e > 0))
-				&&
-				!foodsMap.containsKey(food.getFoodId());
-	}
 	
 }

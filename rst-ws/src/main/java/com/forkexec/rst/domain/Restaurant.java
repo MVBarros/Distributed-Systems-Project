@@ -59,8 +59,8 @@ public class Restaurant {
 			menus.put(menu.getId(), menu);
 		}
 	}
-	
-	
+
+		
 	// RestaurantMenus-------------------------------------------------------------
 
 	/**Return true if menu is valid and it's ID is not duplicate, false otherwise*/

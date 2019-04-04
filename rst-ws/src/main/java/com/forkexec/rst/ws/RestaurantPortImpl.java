@@ -91,6 +91,9 @@ public class RestaurantPortImpl implements RestaurantPortType {
 		}
 
 	}
+	
+	
+	
 
 	// Control operations ----------------------------------------------------
 
