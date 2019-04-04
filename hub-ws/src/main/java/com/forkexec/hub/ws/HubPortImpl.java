@@ -13,7 +13,6 @@ import javax.jws.WebService;
 
 import com.forkexec.cc.ws.cli.CCClient;
 import com.forkexec.hub.domain.Hub;
-import com.forkexec.hub.domain.InvalidUserIdException;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
@@ -55,7 +54,6 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
-		// TODO Add cart to user
 		try {
 			getPoints().activateUser(userId);
 		} catch (EmailAlreadyExistsFault_Exception e) {
@@ -178,10 +176,7 @@ public class HubPortImpl implements HubPortType {
 			throwInvalidUserId("User id isn't registered");
 		}
 		
-		
 		Hub.getInstance().clearCart(userId);
-		
-	
 
 	}
 
