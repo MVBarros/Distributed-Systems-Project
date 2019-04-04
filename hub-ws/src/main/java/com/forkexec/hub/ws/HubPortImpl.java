@@ -139,10 +139,8 @@ public class HubPortImpl implements HubPortType {
 				}
 			} catch (BadTextFault_Exception e) {
 				throwInvalidText("Invalid description");
-			}
-						
+			}				
 		}
-		
 		
 		return foods;
 	}
@@ -151,6 +149,7 @@ public class HubPortImpl implements HubPortType {
 	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
+		
 		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + ' ' + foodId.getRestaurantId(), foodQuantity);
 		// TODO EXC
 
