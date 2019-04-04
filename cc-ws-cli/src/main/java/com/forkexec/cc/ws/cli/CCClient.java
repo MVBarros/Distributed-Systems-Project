@@ -53,38 +53,7 @@ public class CCClient implements CreditCard {
 		this.wsURL = "http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc";
 		createStub();
 	}
-	
-	/** constructor with provided UDDI location and name */
-	/*public CCClient(String uddiURL, String wsName)throws CCClientException {
-		this.uddiURL = uddiURL;
-		this.wsName = wsName;
-		uddiLookup();
 
-	}*/
-	
-	/** UDDI lookup */
-	/*private void uddiLookup() throws CCClientException {
-		try {
-			if (verbose)
-				System.out.printf("Contacting UDDI at %s%n", uddiURL);
-			UDDINaming uddiNaming = new UDDINaming(uddiURL);
-
-			if (verbose)
-				System.out.printf("Looking for '%s'%n", wsName);
-			wsURL = uddiNaming.lookup(wsName);
-
-		} catch (Exception e) {
-			String msg = String.format("Client failed lookup on UDDI at %s!", uddiURL);
-			throw new CCClientException(msg, e);
-		}
-
-		if (wsURL == null) {
-			String msg = String.format("Service with name %s not found on UDDI at %s", wsName, uddiURL);
-			throw new CCClientException(msg);
-		}
-		
-		
-	}*/
 	
 	/** Stub creation and configuration */
 	private void createStub() {

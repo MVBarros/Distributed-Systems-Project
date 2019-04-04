@@ -1,12 +1,17 @@
 package com.forkexec.hub.ws;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.jws.WebService;
 
+import com.forkexec.cc.ws.cli.CCClient;
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.pts.ws.cli.PointsClient;
+import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
 
@@ -115,8 +120,7 @@ public class HubPortImpl implements HubPortType {
 		builder.append(" from ").append(wsName);
 		StringBuilder responses = new StringBuilder();
 
-		System.out.println("Contacting Restaurants connected to UDDI");
-
+		// Connect to Restaurant Server
 		try {
 			Collection<String> bindingsCol = this.endpointManager.getUddiNaming().list("T08_Restaurant%");
 
@@ -124,22 +128,28 @@ public class HubPortImpl implements HubPortType {
 				try {
 					responses.append(pingRestaurant(binding));
 				} catch (RestaurantClientException e) {
-					responses.append("Cannot Reach Client restaurant, got exception" + e);
+					throw new RuntimeException();
 				}
 			});
+
+			try {
+				String binding = this.endpointManager.getUddiNaming().lookup("T08_Points");
+				responses.append(new PointsClient(binding).ctrlPing("hub").concat("\n"));
+			} catch (PointsClientException e) {
+				throw new RuntimeException();
+			}
 
 		} catch (UDDINamingException e) {
 			System.out.println("UDDI Service unreachable, got exception" + e);
 			return null;
 		}
-
+		responses.append(new CCClient().ping("hub").concat("\n"));
 		return responses.append(builder.toString()).toString();
-
 	}
 
 	public String pingRestaurant(String binding) throws RestaurantClientException {
 		System.out.println("Connecting to endpoint: " + binding);
-		return new RestaurantClient(binding).ctrlPing("").concat("\n");
+		return new RestaurantClient(binding).ctrlPing("hub").concat("\n");
 	}
 
 	/** Return all variables to default values. */
@@ -157,6 +167,52 @@ public class HubPortImpl implements HubPortType {
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
 		// TODO Auto-generated method stub
 
+	}
+
+	public Map<String, RestaurantClient> getRestaurants() {
+		Collection<String> bindingsCol = null;
+		try {
+			bindingsCol = this.endpointManager.getUddiNaming().list("T08_Restaurant%");
+		} catch (UDDINamingException e) {
+			System.out.println("UDDI Service unreachable, got exception" + e);
+			throw new RuntimeException();
+		}
+
+		Map<String, RestaurantClient> restaurants = new HashMap<>();
+		int i = 1;
+
+		bindingsCol.stream().forEach(binding -> {
+			try {
+				restaurants.put("T08_Restaurant" + i, new RestaurantClient(binding));
+			} catch (RestaurantClientException e) {
+				System.out.println("Cannot Reach restaurant at " + binding + " got exception" + e);
+				throw new RuntimeException();
+			}
+		});
+
+		return restaurants;
+
+	}
+
+	public PointsClient getPoints() {
+		String binding = null;
+		try {
+			binding = this.endpointManager.getUddiNaming().lookup("T08_Points");
+		} catch (UDDINamingException e) {
+			System.out.println("UDDI Service unreachable, got exception" + e);
+			throw new RuntimeException();
+		}
+		try {
+		return new PointsClient(binding);
+		}catch (PointsClientException e) {
+			System.out.println("Cannot Reach Points server at " + binding + " got exception" + e);
+			throw new RuntimeException();
+		}
+	}
+	
+	public CCClient getCreditCard() {
+
+		return new CCClient();
 	}
 
 	// View helpers ----------------------------------------------------------

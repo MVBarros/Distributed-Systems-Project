@@ -1,5 +1,14 @@
 package com.forkexec.hub.domain;
 
+import java.util.Collection;
+
+import com.forkexec.cc.ws.cli.CCClient;
+import com.forkexec.pts.ws.cli.PointsClient;
+import com.forkexec.pts.ws.cli.PointsClientException;
+import com.forkexec.rst.ws.cli.RestaurantClient;
+import com.forkexec.rst.ws.cli.RestaurantClientException;
+
+import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
 
 /**
  * Hub
@@ -30,6 +39,7 @@ public class Hub {
 	}
 
 
-	// TODO 
+
+
 	
 }
