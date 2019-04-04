@@ -155,7 +155,12 @@ public class HubPortImpl implements HubPortType {
 		if (userId == null || userId.contains(" ")) throwInvalidUserId("Invalid user id");
 		if (foodQuantity <= 0) throwInvalidFoodQuantity("Invalid food quantity");
 		if (foodId == null) throwInvalidFoodId("Invalid food id");
-		
+		if (foodId.getMenuId() == null)
+			throwInvalidFoodId("menu can't be null");
+
+		if (foodId.getRestaurantId() == null)
+			throwInvalidFoodId("restaurant can't be null");
+
 		try {
 			getPoints().pointsBalance(userId);
 		} catch (InvalidEmailFault_Exception e) {
