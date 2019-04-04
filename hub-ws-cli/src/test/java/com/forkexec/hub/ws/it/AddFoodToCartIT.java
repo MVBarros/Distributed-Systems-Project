@@ -1,5 +1,7 @@
 package com.forkexec.hub.ws.it;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -171,8 +173,33 @@ public class AddFoodToCartIT extends BaseIT {
 			FoodId foodid = new FoodId();
 			foodid.setMenuId("2");
 			foodid.setRestaurantId("T08_Restaurant1");
-			
+			client.clearCart("teste@mail.com");
 			client.addFoodToCart("teste@mail.com", foodid, 1);
+			
 			List<FoodOrderItem> carrinho = client.cartContents("teste@mail.com");
+			
+			for (FoodOrderItem foi: carrinho) {
+				assertEquals(foi.getFoodId(), foodid);
+				assertEquals(foi.getFoodQuantity(), 1);
+			}
+		}
+		
+		@Test
+		public void adddFoodToCartSameFoodTwice() throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception{
+			FoodId foodid = new FoodId();
+			foodid.setMenuId("2");
+			foodid.setRestaurantId("T08_Restaurant1");
+			client.clearCart("teste@mail.com");
+			client.addFoodToCart("teste@mail.com", foodid, 1);
+			client.addFoodToCart("teste@mail.com", foodid, 1);
+			
+			List<FoodOrderItem> carrinho = client.cartContents("teste@mail.com");
+			
+			for (FoodOrderItem foi: carrinho) {
+				if (foi.getFoodId() == foodid)
+					assertEquals(foi.getFoodQuantity(), 2);
+			}
+
+			
 		}
 }
