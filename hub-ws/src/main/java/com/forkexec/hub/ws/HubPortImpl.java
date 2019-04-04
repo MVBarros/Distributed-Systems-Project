@@ -16,6 +16,7 @@ import com.forkexec.hub.domain.Hub;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
 import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+import com.forkexec.pts.ws.InvalidPointsFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
@@ -62,6 +63,40 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
+		
+		// check if user Id is valid
+		
+		if (!getCreditCard().validateNumber(creditCardNumber)) {
+			// Throw Error
+		}
+		
+		try {
+			switch(moneyToAdd) {
+				case 10:
+					getPoints().addPoints(userId, 1000);
+					break;
+				case 20:
+					getPoints().addPoints(userId, 2100);
+					break;
+				case 30:
+					getPoints().addPoints(userId, 3300);
+					break;
+				case 50:
+					getPoints().addPoints(userId, 5500);
+					break;
+				default:
+					// Trow error
+			}
+		} catch (InvalidEmailFault_Exception e) {
+			
+		} catch (InvalidPointsFault_Exception e) {
+			
+		}
+		
+		
+		
+		
+		
 		// TODO Auto-generated method stub
 
 	}
