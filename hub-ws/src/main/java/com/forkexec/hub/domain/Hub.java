@@ -1,10 +1,13 @@
 package com.forkexec.hub.domain;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.forkexec.cc.ws.cli.CCClient;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
+import com.forkexec.rst.domain.RestaurantMenu;
 import com.forkexec.rst.ws.cli.RestaurantClient;
 import com.forkexec.rst.ws.cli.RestaurantClientException;
 
@@ -17,8 +20,9 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINamingException;
  *
  */
 public class Hub {
+	
 
-
+	
 	// Singleton -------------------------------------------------------------
 
 	/** Private constructor prevents instantiation from other classes. */
@@ -37,6 +41,7 @@ public class Hub {
 	public static synchronized Hub getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
+	
 
 
 
