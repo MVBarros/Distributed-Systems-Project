@@ -322,6 +322,13 @@ public class HubPortImpl implements HubPortType {
 	/** Return all variables to default values. */
 	@Override
 	public void ctrlClear() {
+		Hub.getInstance().clear();
+		getPoints().ctrlClear();
+		Map<String, RestaurantClient> clients = getRestaurants();
+		
+		for(RestaurantClient client: clients.values()) {
+			client.ctrlClear();
+		}
 	}
 
 	/** Set variables with specific values. */

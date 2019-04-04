@@ -10,7 +10,6 @@ import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodInit;
 //import com.forkexec.rst.domain.BadMenuInitiationException;
 //import com.forkexec.rst.domain.RestaurantMenu;
-import com.forkexec.rst.domain.BadMenuIdException;
 
 
 
@@ -80,6 +79,13 @@ public class Hub {
 	
 	private void throwInvalidUserIdException(final String message) throws InvalidUserIdException {
 		throw new InvalidUserIdException(message);
+	}
+	
+	/**Control Functions*/
+	public void clear() {
+		carts = new ConcurrentHashMap<String, HubOrder>();
+		currentOrderId = 0;
+
 	}
 	
 
