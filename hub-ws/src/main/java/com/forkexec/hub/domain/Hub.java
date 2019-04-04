@@ -54,7 +54,7 @@ public class Hub {
 	}
 	
 	public synchronized HubFood getFood(String foodId) {
-		return foods.get(foodId);
+		return foodsMap.get(foodId);
 	}
 
 
