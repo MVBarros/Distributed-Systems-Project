@@ -1,41 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<!-- http://maven.apache.org/pom.html#Quick_Overview -->
 
 	<!-- Please replace 'CXX' below with your C (campus) with A (Alameda) / 
 		T (Tagus); and your group number with two digits. Then delete this comment. -->
-    <parent>
-        <groupId>com.forkexec.T08</groupId>
-        <artifactId>ForkExec</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
-
-    <artifactId>pts-ws</artifactId>
-    <packaging>jar</packaging>
-	
+	<parent>
+		<groupId>com.forkexec.T08</groupId>
+		<artifactId>ForkExec</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>cc-ws-cli</artifactId>
+	<packaging>jar</packaging>
 	<name>${project.artifactId}</name>
-
 	<properties>
-        <!-- see parent POM for more properties -->
+		<!-- see parent POM for more properties -->
 
-		<mainclass>com.forkexec.pts.ws.PointsApp</mainclass>
 
-		<wsdl.dir>${basedir}/../pts-contract/</wsdl.dir>
-		
+		<wsdl.dir>${basedir}/../cc-contract/</wsdl.dir>
 		<!-- instance number -->
 		<ws.i>1</ws.i>
 
-		<ws.host>localhost</ws.host>
-		<ws.port>809${ws.i}</ws.port>
-		<ws.url>http://${ws.host}:${ws.port}/pts-ws/endpoint</ws.url>
+		<!-- <ws.host>localhost</ws.host> -->
+		<!-- <ws.port>905${ws.i}</ws.port>-->
+		<ws.url>http://ws.sd.rnl.tecnico.ulisboa.pt:8080/cc</ws.url>
 
-		<ws.name>${pts.ws.name}${ws.i}</ws.name>
+		<ws.name>${cc.ws.name}${ws.i}</ws.name>
 	</properties>
-
 	<dependencies>
 		<!-- JAX-WS -->
+
 		<dependency>
 			<groupId>com.sun.xml.ws</groupId>
 			<artifactId>jaxws-rt</artifactId>
@@ -47,25 +42,29 @@
 			<artifactId>uddi-naming</artifactId>
 			<version>${version.uddi-naming}</version>
 		</dependency>
-	</dependencies>
+		<!-- JUnit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
 
+		</dependency>
+		
+	</dependencies>
 	<build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>${wsdl.dir}</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -90,6 +89,7 @@
 				</executions>
 				<configuration>
 					<!-- http://www.mojohaus.org/jaxws-maven-plugin/wsimport-mojo.html -->
+
 					<wsdlDirectory>${wsdl.dir}</wsdlDirectory>
 				</configuration>
 				<dependencies>
@@ -101,9 +101,21 @@
 				</dependencies>
 			</plugin>
 			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.19.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-                <version>${version.exec-maven-plugin}</version>
+				<version>${version.exec-maven-plugin}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -113,19 +125,19 @@
 				</executions>
 				<configuration>
 					<!-- to prevent deprecation warning: -->
+
 					<killAfter>-1</killAfter>
 					<mainClass>${mainclass}</mainClass>
 					<arguments>
 						<argument>${uddi.url}</argument>
 						<argument>${ws.name}</argument>
-						<argument>${ws.url}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
-                <version>${version.appassembler-maven-plugin}</version>
+				<version>${version.appassembler-maven-plugin}</version>
 				<executions>
 					<execution>
 						<phase>install</phase>
@@ -136,10 +148,7 @@
 				</executions>
 				<configuration>
 					<programs>
-						<program>
-							<mainClass>${mainclass}</mainClass>
-							<id>${project.artifactId}</id>
-						</program>
+
 					</programs>
 				</configuration>
 			</plugin>

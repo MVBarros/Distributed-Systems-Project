@@ -5,7 +5,7 @@
 
 	<!-- Please replace 'CXX' below with your C (campus) with A (Alameda) / 
 	T (Tagus); and your group number with two digits. Then delete this comment. -->
-    <groupId>com.forkexec.CXX</groupId>
+    <groupId>com.forkexec.T08</groupId>
     <artifactId>ForkExec</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -19,6 +19,7 @@
         <module>rst-ws-cli</module>
         <module>hub-ws</module>
         <module>hub-ws-cli</module>
+        <module>cc-ws-cli</module> 
     </modules>
 
     <properties>
@@ -47,11 +48,13 @@
 
 		<!-- Please replace 'CXX' below with your C (campus) with A (Alameda) / 
  			 T (Tagus); and your group number with two digits. Then delete this comment. -->
-		<group.id>CXX</group.id>
+		<group.id>T08</group.id>
 		
 		<pts.ws.name>${group.id}_Points</pts.ws.name>
 		<rst.ws.name>${group.id}_Restaurant</rst.ws.name>
 		<hub.ws.name>${group.id}_Hub</hub.ws.name>
+		<cc.ws.name>${group.id}_cc </cc.ws.name> 
+		
 	</properties>
 
     <build>

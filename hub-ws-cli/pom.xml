@@ -6,7 +6,7 @@
 	<!-- Please replace 'CXX' below with your C (campus) with A (Alameda) / 
 		T (Tagus); and your group number with two digits. Then delete this comment. -->
 	<parent>
-		<groupId>com.forkexec.CXX</groupId>
+		<groupId>com.forkexec.T08</groupId>
 		<artifactId>ForkExec</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
@@ -42,6 +42,23 @@
 			<artifactId>uddi-naming</artifactId>
 			<version>${version.uddi-naming}</version>
 		</dependency>
+		<dependency>
+        	<groupId>com.forkexec.T08</groupId>
+        	<artifactId>rst-ws-cli</artifactId>
+        	<version>1.0.0-SNAPSHOT</version>
+    	</dependency>
+    	
+    	<dependency>
+        	<groupId>com.forkexec.T08</groupId>
+        	<artifactId>pts-ws-cli</artifactId>
+        	<version>1.0.0-SNAPSHOT</version>
+    	</dependency>
+    	
+    	<dependency>
+        	<groupId>com.forkexec.T08</groupId>
+        	<artifactId>cc-ws-cli</artifactId>
+        	<version>1.0.0-SNAPSHOT</version>
+    	</dependency>
 		<!-- JUnit -->
 		<dependency>
 			<groupId>junit</groupId>
