@@ -26,10 +26,24 @@ import com.forkexec.hub.ws.NotEnoughPointsFault_Exception;
 public class OrderCartIT extends BaseIT {
 	// one-time initialization and clean-up
 	@BeforeClass
-	public static void oneTimeSetUp() throws InvalidInitFault_Exception, InvalidUserIdFault_Exception {
+	public static void oneTimeSetUp() {
 		client.ctrlClear();
 
 		
+
+
+	}
+	
+	@AfterClass
+	public static void oneTimeTearDown() {
+		// clear remote service state after all tests
+		client.ctrlClear();
+
+
+	}
+	
+	@Before
+	public void setUp() throws InvalidInitFault_Exception, InvalidUserIdFault_Exception  {
 		// First foodinit
 		FoodId foodid1 = new FoodId();
 		foodid1.setMenuId("1");
@@ -48,27 +62,10 @@ public class OrderCartIT extends BaseIT {
 		foodinit1.setQuantity(2);
 		
 
-		
-		
-		
 		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1));
 		client.ctrlInitFood(foodInits);
 
 		client.activateAccount("teste@mail.com");
-
-	}
-	
-	@AfterClass
-	public static void oneTimeTearDown() {
-		// clear remote service state after all tests
-		client.ctrlClear();
-
-
-	}
-	
-	@Before
-	public void setUp()  {
-		
 
 	}
 
@@ -120,7 +117,7 @@ public class OrderCartIT extends BaseIT {
 		client.orderCart("teste@mail.com");
 	}
 	
-	@Test(expected =NotEnoughPointsFault_Exception.class)
+	@Test(expected=NotEnoughPointsFault_Exception.class)
 	public void orderCartNotEnoughPoints() throws InvalidUserIdFault_Exception, InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, EmptyCartFault_Exception, NotEnoughPointsFault_Exception {
 	
 		client.clearCart("teste@mail.com");

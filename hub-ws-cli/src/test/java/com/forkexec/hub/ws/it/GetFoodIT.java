@@ -25,10 +25,20 @@ public class GetFoodIT extends BaseIT {
 
 	// one-time initialization and clean-up
 	@BeforeClass
-	public static void oneTimeSetUp() throws InvalidInitFault_Exception {
+	public static void oneTimeSetUp()  {
+		client.ctrlClear();		
+	}
+	
+	@AfterClass
+	public static void oneTimeTearDown() {
+		// clear remote service state after all tests
 		client.ctrlClear();
 
-		
+
+	}
+	
+	@Before
+	public void setUp() throws InvalidInitFault_Exception  {
 		// First foodinit
 		FoodId foodid1 = new FoodId();
 		foodid1.setMenuId("1");
@@ -47,26 +57,8 @@ public class GetFoodIT extends BaseIT {
 		foodinit1.setQuantity(2);
 		
 		
-		
-		
-		
 		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1));
 		client.ctrlInitFood(foodInits);
-
-		
-	}
-	
-	@AfterClass
-	public static void oneTimeTearDown() {
-		// clear remote service state after all tests
-		client.ctrlClear();
-
-
-	}
-	
-	@Before
-	public void setUp()  {
-		
 
 	}
 

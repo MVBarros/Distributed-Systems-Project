@@ -171,16 +171,18 @@ public class AddFoodToCartIT extends BaseIT {
 		@Test
 		public void success() throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception{
 			FoodId foodid = new FoodId();
-			foodid.setMenuId("2");
+			foodid.setMenuId("1");
 			foodid.setRestaurantId("T08_Restaurant1");
+			
 			client.clearCart("teste@mail.com");
+			
 			client.addFoodToCart("teste@mail.com", foodid, 1);
 			
 			List<FoodOrderItem> carrinho = client.cartContents("teste@mail.com");
 			
 			for (FoodOrderItem foi: carrinho) {
-				assertEquals(foi.getFoodId().getMenuId(), foodid.getMenuId());
-				assertEquals(foi.getFoodId().getRestaurantId(), foodid.getRestaurantId());
+				assertEquals(foi.getFoodId().getMenuId(), "1");
+				assertEquals(foi.getFoodId().getRestaurantId(), "T08_Restaurant1");
 				assertEquals(foi.getFoodQuantity(), 1);
 			}
 		}
