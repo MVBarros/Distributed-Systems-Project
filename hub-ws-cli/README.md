@@ -2,21 +2,13 @@
 
 ## Authors
 
-Group CXX
+Group T08
 
-### Lead developer 
+###Miguel Veloso Barros 87691 MVBarros 
 
-... ... ...
+###Carolina Carreira 87641 CarolinaCC 
 
-_preencher com nome, número e GitHub ID de membro do grupo que liderou esta parte e depois apagar esta linha_
-
-### Contributors
-
-... ... ...
-
-... ... ...
-
-_preencher com nome, número e GitHub ID dos membro do grupo que contribuiram com código para esta parte e depois apagar esta linha_
+(Only two of us after all)
 
 ## About
 

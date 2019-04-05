@@ -46,10 +46,48 @@ public class ActivateUserIT extends BaseIT {
 	public void activateUserEmptyEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		client.activateUser("");
 	}
+	@Test(expected =InvalidEmailFault_Exception.class)
+	public void activateUserWhiteSpaceEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser(" ");
+	}
+	@Test(expected =InvalidEmailFault_Exception.class)
+	public void activateUserNewilineEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser("\n");
+	}
+	
+	@Test(expected =InvalidEmailFault_Exception.class)
+	public void activateUserTabEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser("\t");
+	}
 	
 	@Test(expected =InvalidEmailFault_Exception.class)
 	public void activateUserInvalidEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		client.activateUser("a@");
+	}
+	
+	@Test(expected =InvalidEmailFault_Exception.class)
+	public void activateUserInvalidEmail2() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser("a.@");
+	}
+	
+	@Test(expected =InvalidEmailFault_Exception.class)
+	public void activateUserInvalidEmail3() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser(".33@");
+	}
+	
+	@Test(expected =InvalidEmailFault_Exception.class)
+	public void activateUserInvalidEmail4() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser("@");
+	}
+	
+	@Test(expected =InvalidEmailFault_Exception.class)
+	public void activateUserInvalidEmail5() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser("@a");
+	}
+	
+	@Test(expected =InvalidEmailFault_Exception.class)
+	public void activateUserInvalidEmail6() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+		client.activateUser("@a..");
 	}
 	
 	@Test

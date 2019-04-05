@@ -64,7 +64,7 @@ public class PointsPortImpl implements PointsPortType {
 	}
 
 	@Override
-	public int addPoints(final String userEmail, final int pointsToAdd)
+	public synchronized int addPoints(final String userEmail, final int pointsToAdd)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
 
 		if (userEmail == null)
@@ -84,7 +84,7 @@ public class PointsPortImpl implements PointsPortType {
 	}
 
 	@Override
-	public int spendPoints(final String userEmail, final int pointsToSpend)
+	public synchronized int spendPoints(final String userEmail, final int pointsToSpend)
 			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
 
 		if (userEmail == null)
@@ -127,13 +127,13 @@ public class PointsPortImpl implements PointsPortType {
 
 	/** Return all variables to default values. */
 	@Override
-	public void ctrlClear() {
+	public synchronized void ctrlClear() {
 		Points.getInstance().resetPoints();
 	}
 
 	/** Set variables with specific values. */
 	@Override
-	public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
+	public synchronized void ctrlInit(final int startPoints) throws BadInitFault_Exception {
 		if (startPoints < 0)
 			throwBadInit("Initial points must be >= 0");
 		Points.getInstance().initPoints(startPoints);

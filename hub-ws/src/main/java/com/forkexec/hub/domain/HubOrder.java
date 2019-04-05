@@ -25,7 +25,7 @@ public class HubOrder {
 		this.orderId = orderId;
 	}
 
-	public void addToCart(String foodId, int quantity) throws CartQuantityException {
+	public synchronized void addToCart(String foodId, int quantity) throws CartQuantityException {
 		if (cart.get(foodId) != null) {
 			/* Just update Quantity */
 			if (cart.get(foodId) + quantity <= 0) {
@@ -43,7 +43,7 @@ public class HubOrder {
 		}
 	}
 
-	public void clear() {
+	public synchronized void clear() {
 		cart.clear();
 		orderId = null;
 	}

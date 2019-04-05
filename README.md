@@ -12,22 +12,6 @@ Miguel Veloso Barros 87691 MVBarros
 
 Carolina Carreira 87641 CarolinaCC 
 
-... ... ...
-
-_preencher com nome, número e GitHub ID de membro do grupo e depois apagar esta linha_
-
-For each module, the README file must identify the lead developer and the contributors.
-The leads should be evenly divided among the group members.
-
-
-### Code identification
-
-In all the source files (including POMs), please replace __CXX__ with your Campus: A (Alameda) or T (Tagus); and your group number with two digits.
-
-This is important for code dependency management 
-i.e. making sure that your code runs using the correct components and not someone else's.
-
-
 ## Getting Started
 
 The overall system is composed of multiple services and clients.
@@ -62,6 +46,40 @@ mvn clean install -DskipTests
 
 The tests are skipped because they require each server to be running.
 
+###Run with tests
+
+launch two instances of restaurants
+
+```
+rst-ws/$mvn compile exec:java
+```
+
+```
+rst-ws/$mvn compile exec:java -Dws.i=2
+```
+
+launch one instance of points
+
+```
+pts-ws$mvn compile exec:java
+```
+
+launch one instance of hub
+
+```
+hub-ws$mvn compile exec:java
+```
+
+run tests in root project directory
+
+```
+$mvn install
+```
+
+
+Note: There may be some problems with the UDDI server that can cause test failures, recomended to run again after reiniciating all tests
+
+Recommended before running tests installing without running tests
 
 ## Built With
 

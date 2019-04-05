@@ -27,7 +27,7 @@ public class Points {
 
 	/** Regex to check emails */
 	private static final Pattern PATTERN = Pattern
-			.compile("^[a-zA-Z0-9_+&*-]+(?:\\." + "[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-z" + "A-Z]{2,7}$");
+			.compile("^[a-zA-Z0-9]+(.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(.[a-zA-Z0-9]+)*");
 
 	// Singleton -------------------------------------------------------------
 

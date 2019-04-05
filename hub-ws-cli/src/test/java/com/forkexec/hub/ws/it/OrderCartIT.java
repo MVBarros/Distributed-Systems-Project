@@ -57,7 +57,23 @@ public class OrderCartIT extends BaseIT {
 		foodinit1.setFood(f1);
 		foodinit1.setQuantity(7);
 
-		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1));
+		FoodId foodid2 = new FoodId();
+		foodid2.setMenuId("1");
+		foodid2.setRestaurantId("T08_Restaurant2");
+
+		Food f2 = new Food();
+		f2.setId(foodid2);
+		f2.setEntree("Salada de Polvo");
+		f2.setPlate("Arroz");
+		f2.setDessert("Bolo");
+		f2.setPrice(1);
+		f2.setPreparationTime(1);
+
+		FoodInit foodinit2 = new FoodInit();
+		foodinit2.setFood(f2);
+		foodinit2.setQuantity(3);
+		
+		List<FoodInit> foodInits = new ArrayList<>(Arrays.asList(foodinit1, foodinit2));
 		client.ctrlInitFood(foodInits);
 
 		client.activateAccount("teste@mail.com");
@@ -106,10 +122,23 @@ public class OrderCartIT extends BaseIT {
 		FoodId foodid = new FoodId();
 		foodid.setMenuId("1");
 		foodid.setRestaurantId("T08_Restaurant1");
-		client.clearCart("teste@mail.com");
 
 		client.addFoodToCart("teste@mail.com", foodid, 7);
 		client.orderCart("teste@mail.com");
+	}
+	
+	@Test(expected = InvalidFoodQuantityFault_Exception.class)
+	public void orderCartTooMuchQuantity() throws InvalidUserIdFault_Exception, InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, EmptyCartFault_Exception, NotEnoughPointsFault_Exception {
+		
+		client.clearCart("teste@mail.com");
+		
+		FoodId foodid = new FoodId();
+		foodid.setMenuId("1");
+		foodid.setRestaurantId("T08_Restaurant2");
+
+		client.addFoodToCart("teste@mail.com", foodid, 30);
+		client.orderCart("teste@mail.com");
+		
 	}
 
 	// Main Tests

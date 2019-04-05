@@ -1,13 +1,12 @@
-# Points Web Service client
+# Credit Card Web Service client
 
 ## Authors
 
 Group T08
 
-Miguel Veloso Barros 87691 MVBarros 
+###Miguel Veloso Barros 87691 MVBarros 
 
-###Carolina Carreira 87641 CarolinaCC 
-
+Carolina Carreira 87641 CarolinaCC
 
 ## About
 
