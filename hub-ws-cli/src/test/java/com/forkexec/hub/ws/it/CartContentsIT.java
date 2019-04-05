@@ -65,6 +65,7 @@ public class CartContentsIT extends BaseIT{
 		List<FoodOrderItem> contents = client.cartContents("ola@ola.com");
 		
 		assertEquals(contents.size(), 1);
+	//	assertEquals(contents.get(0));
 		
 	}
 
