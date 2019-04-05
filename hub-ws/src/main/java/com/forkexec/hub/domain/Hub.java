@@ -50,7 +50,7 @@ public class Hub {
 	}
 	
 
-	public synchronized void add2Cart(String userId, String foodid, Integer quantity) {
+	public synchronized void add2Cart(String userId, String foodid, Integer quantity) throws CartQuantityException {
 		if (!carts.containsKey(userId)) {
 			carts.put(userId, new HubOrder());
 		}	
