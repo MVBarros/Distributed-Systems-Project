@@ -17,8 +17,7 @@ import com.forkexec.hub.ws.FoodId;
 import com.forkexec.hub.ws.FoodInit;
 import com.forkexec.hub.ws.InvalidFoodIdFault_Exception;
 import com.forkexec.hub.ws.InvalidInitFault_Exception;
-import com.forkexec.rst.ws.Menu;
-import com.forkexec.rst.ws.cli.RestaurantClient;
+
 
 
 public class GetFoodIT extends BaseIT {
@@ -127,7 +126,8 @@ public class GetFoodIT extends BaseIT {
 		
 		assertEquals(f.getDessert(), "Bolo");
 		assertEquals(f.getEntree(), "Salada de Polvo");
-		assertEquals(f.getId(), foodid);
+		assertEquals(f.getId().getMenuId(), "1");
+		assertEquals(f.getId().getRestaurantId(), "T08_Restaurant1");
 		assertEquals(f.getPlate(),"Arroz");
 		assertEquals(f.getPreparationTime(),3 );
 		assertEquals(f.getPrice(), 15);
