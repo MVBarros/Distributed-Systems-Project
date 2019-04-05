@@ -547,7 +547,8 @@ public class HubPortImpl implements HubPortType {
 		food.setEntree(menu.getEntree());
 		food.setPlate(menu.getPlate());
 		food.setPreparationTime(menu.getPreparationTime());
-		food.setPrice(menu.getTime());
+
+		food.setPrice(menu.getPrice());
 
 		FoodId foodId = new FoodId();
 		foodId.setMenuId(menu.getId().getId());
