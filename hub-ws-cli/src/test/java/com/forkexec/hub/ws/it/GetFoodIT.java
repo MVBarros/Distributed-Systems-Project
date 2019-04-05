@@ -17,8 +17,7 @@ import com.forkexec.hub.ws.FoodId;
 import com.forkexec.hub.ws.FoodInit;
 import com.forkexec.hub.ws.InvalidFoodIdFault_Exception;
 import com.forkexec.hub.ws.InvalidInitFault_Exception;
-import com.forkexec.rst.ws.Menu;
-import com.forkexec.rst.ws.cli.RestaurantClient;
+
 
 
 public class GetFoodIT extends BaseIT {
