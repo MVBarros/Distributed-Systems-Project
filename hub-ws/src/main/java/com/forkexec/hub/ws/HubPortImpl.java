@@ -233,7 +233,7 @@ public class HubPortImpl implements HubPortType {
 				/* will never happen */
 				throw new RuntimeException();
 			} catch (InsufficientQuantityFault_Exception e) {
-				// TODO What
+			
 			}
 		}
 
@@ -547,7 +547,7 @@ public class HubPortImpl implements HubPortType {
 		food.setEntree(menu.getEntree());
 		food.setPlate(menu.getPlate());
 		food.setPreparationTime(menu.getPreparationTime());
-		food.setPrice(menu.getPreparationTime());
+		food.setPrice(menu.getTime());
 
 		FoodId foodId = new FoodId();
 		foodId.setMenuId(menu.getId().getId());

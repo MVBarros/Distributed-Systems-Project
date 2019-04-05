@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.forkexec.hub.ws.Food;
 import com.forkexec.hub.ws.FoodId;
@@ -60,13 +61,15 @@ public class CartContentsIT extends BaseIT{
 		client.ctrlClear();
 	}
 	
+	
+	@Test
 	public void sucesssCartContents() throws InvalidUserIdFault_Exception {
 		
 		List<FoodOrderItem> contents = client.cartContents("ola@ola.com");
 		
 		assertEquals(contents.size(), 1);
-	//	assertEquals(contents.get(0));
-		
+		assertEquals(contents.get(0).getFoodId().getMenuId(), "1");
+		assertEquals(contents.get(0).getFoodId().getRestaurantId(), "T08_Restaurant1");
 	}
 
 }
