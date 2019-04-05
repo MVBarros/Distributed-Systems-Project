@@ -126,7 +126,8 @@ public class GetFoodIT extends BaseIT {
 		
 		assertEquals(f.getDessert(), "Bolo");
 		assertEquals(f.getEntree(), "Salada de Polvo");
-		assertEquals(f.getId(), foodid);
+		assertEquals(f.getId().getMenuId(), "1");
+		assertEquals(f.getId().getRestaurantId(), "T08_Restaurant1");
 		assertEquals(f.getPlate(),"Arroz");
 		assertEquals(f.getPreparationTime(),3 );
 		assertEquals(f.getPrice(), 15);
