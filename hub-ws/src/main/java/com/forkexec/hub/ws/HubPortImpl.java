@@ -161,10 +161,10 @@ public class HubPortImpl implements HubPortType {
 
 		if (foodId.getRestaurantId() == null)
 			throwInvalidFoodId("restaurant can't be null");
-		
+
 		if (!getRestaurantIds().contains(foodId.getRestaurantId()))
 			throwInvalidFoodId("Non existing restaurant");
-		
+
 		try {
 			getPoints().pointsBalance(userId);
 		} catch (InvalidEmailFault_Exception e) {
@@ -192,8 +192,8 @@ public class HubPortImpl implements HubPortType {
 	}
 
 	@Override
-	public FoodOrder orderCart(String userId)
-			throws EmptyCartFault_Exception, InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception {
+	public FoodOrder orderCart(String userId) throws EmptyCartFault_Exception, InvalidUserIdFault_Exception,
+			NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
 
 		List<FoodOrderItem> items = cartContents(userId);
 		if (items.size() == 0)
@@ -233,7 +233,8 @@ public class HubPortImpl implements HubPortType {
 				/* will never happen */
 				throw new RuntimeException();
 			} catch (InsufficientQuantityFault_Exception e) {
-			
+				throwInvalidFoodQuantity("Invalid quantity, got Exception " + e);
+
 			}
 		}
 
@@ -243,6 +244,7 @@ public class HubPortImpl implements HubPortType {
 		order.setFoodOrderId(orderId);
 
 		/* nao da para fazer set dos items do order */
+		order.getItems().addAll(items);
 		return order;
 	}
 
@@ -299,8 +301,8 @@ public class HubPortImpl implements HubPortType {
 
 		for (String cartName : carts.keySet()) {
 			String[] ids = cartName.split("\\n");
-			String restaurantId = ids[0];
-			String menuId = ids[1];
+			String restaurantId = ids[1];
+			String menuId = ids[0];
 
 			FoodId foodId = new FoodId();
 			foodId.setMenuId(menuId);

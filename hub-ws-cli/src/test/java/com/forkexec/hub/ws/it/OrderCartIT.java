@@ -1,5 +1,6 @@
 package com.forkexec.hub.ws.it;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -100,7 +101,12 @@ public class OrderCartIT extends BaseIT {
 		client.addFoodToCart("teste@mail.com", foodid, 1);
 		
 		FoodOrder fo = client.orderCart("teste@mail.com");
-		assertTrue(fo.getItems().get(0).getFoodId().equals(foodid));
+		
+		assertEquals(fo.getItems().size(), 1);
+	
+		assertEquals(fo.getItems().get(0).getFoodId().getMenuId(), foodid.getMenuId());
+		assertEquals(fo.getItems().get(0).getFoodId().getRestaurantId(), foodid.getRestaurantId());
+
 	}
 	
 	
