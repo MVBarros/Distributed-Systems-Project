@@ -1,11 +1,20 @@
 package com.forkexec.pts.ws.cli;
 
+import java.util.concurrent.ExecutionException;
+
+import javax.xml.ws.AsyncHandler;
+import javax.xml.ws.Response;
+
+import com.forkexec.pts.ws.PointsBalanceResponse;
+
 /** 
  * Client application. 
  * 
  * Looks for Points using UDDI and arguments provided
  */
 public class PointsClientApp {
+
+	static boolean received = false;
 
 	public static void main(String[] args) throws Exception {
 		// Check arguments.
@@ -42,6 +51,55 @@ public class PointsClientApp {
 		String result = client.ctrlPing("client");
 		System.out.print("Result: ");
 		System.out.println(result);
+		
+		String userEmail = "user@example.com";
+	    client.activateUser(userEmail);
+	    // asynchronous call with polling
+	    Response<PointsBalanceResponse> response = client.pointsBalanceAsync(userEmail);
+
+	    while (!response.isDone()) {
+	        Thread.sleep(10 /* milliseconds */);
+	        System.out.print(".");
+			System.out.flush();
+	    }
+
+	    try {
+	        System.out.println("(Polling) asynchronous call result: " + response.get().getReturn());
+	    } catch (ExecutionException e) {
+	        System.out.println("Caught execution exception.");
+	        System.out.print("Cause: ");
+	        System.out.println(e.getCause());
+	    }
+	    
+	    client.addPoints(userEmail, 1100);
+	    
+	    // asynchronous call with callback
+        client.pointsBalanceAsync(userEmail, new AsyncHandler<PointsBalanceResponse>() {
+            @Override
+            public void handleResponse(Response<PointsBalanceResponse> response) {
+                try {
+                    System.out.println();
+                    System.out.print("(Callback) Asynchronous call result arrived: ");
+                    System.out.println(response.get().getReturn());
+                    received = true;
+                } catch (InterruptedException e) {
+                    System.out.println("Caught interrupted exception.");
+                    System.out.print("Cause: ");
+                    System.out.println(e.getCause());
+                } catch (ExecutionException e) {
+                    System.out.println("Caught execution exception.");
+                    System.out.print("Cause: ");
+                    System.out.println(e.getCause());
+                }
+            }
+        });
+
+        while (!received) {
+            Thread.sleep(10 /* milliseconds */);
+            System.out.print(".");
+            System.out.flush();
+        }
+	    
 	}
 
 }
