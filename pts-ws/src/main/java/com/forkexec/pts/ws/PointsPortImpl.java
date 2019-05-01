@@ -2,6 +2,8 @@ package com.forkexec.pts.ws;
 
 import javax.jws.WebService;
 import com.forkexec.pts.domain.Points;
+import com.forkexec.pts.domain.BalanceSequence;
+
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -22,8 +24,100 @@ public class PointsPortImpl implements PointsPortType {
 	}
 
 	// Main operations -------------------------------------------------------
-
+	@Override
+	public Balance pointsRead(String userEmail) {
+		BalanceSequence bs = Points.getInstance().pointsRead(userEmail);
+		Balance newBalance = new Balance ();
+		newBalance.setPoints(bs.getPoints());
+		newBalance.setTag(bs.getSequence());
+		return newBalance;
+		
+	}
 	
+	@Override
+	public void pointsWrite(String userEmail, Integer pointsVal, Long tag) {
+		Points.getInstance().pointsWrite(userEmail, pointsVal, tag);
+		return;
+		
+	}
+	
+	/*
+	@Override
+	public void activateUser(final String userEmail)
+			throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+
+		if (userEmail == null)
+			throwInvalidEmailFault("Email can't be null");
+
+		try {
+			Points.getInstance().addAccount(userEmail);
+		} catch (InvalidEmailNameException e) {
+			throwInvalidEmailFault("Email entered is not valid");
+
+		} catch (RepeatedUserEmailException e) {
+			throwEmailAlreadyExistsFault("Email is already used");
+		}
+	}
+
+	@Override
+	public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
+
+		if (userEmail == null)
+			throwInvalidEmailFault("Email can't be null");
+
+		int points = 0;
+		try {
+			points = Points.getInstance().getUserPoints(userEmail);
+
+		} catch (NoSuchEmailException e) {
+			throwInvalidEmailFault("Email entered does not exist");
+		}
+		return points;
+
+	}
+
+	@Override
+	public synchronized int addPoints(final String userEmail, final int pointsToAdd)
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+
+		if (userEmail == null)
+			throwInvalidEmailFault("Email can't be null");
+
+		int points = 0;
+		try {
+			points = Points.getInstance().addUserPoints(userEmail, pointsToAdd);
+
+		} catch (InvalidPointCountException e) {
+			throwInvalidPointsFault("Points must be >= 0");
+		} catch (NoSuchEmailException e) {
+			throwInvalidEmailFault("Email entered does not exist");
+		}
+
+		return points;
+	}
+
+	@Override
+	public synchronized int spendPoints(final String userEmail, final int pointsToSpend)
+			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+
+		if (userEmail == null)
+			throwInvalidEmailFault("Email can't be null");
+
+		int points = 0;
+		try {
+			points = Points.getInstance().removeUserPoints(userEmail, pointsToSpend);
+
+		} catch (InvalidPointCountException e) {
+			throwInvalidPointsFault("Points must be >= 0");
+		} catch (NoSuchEmailException e) {
+			throwInvalidEmailFault("Email entered does not exist");
+		}catch (NotEnoughBalanceException e) {
+			throwNotEnoughBalanceFault("Not enough balance");
+		}
+
+		return points;
+	}
+	*/
 
 	// Control operations ----------------------------------------------------
 	/** Diagnostic operation to check if service is running. */
@@ -68,18 +162,7 @@ public class PointsPortImpl implements PointsPortType {
 		throw new BadInitFault_Exception(message, faultInfo);
 	}
 
+
+
 	
-
-	@Override
-	public Balance pointsRead(String userEmail) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void pointsWrite(String userEmail, Integer pointsVal, Long tag) {
-		Points.getInstance().pointsWrite(userEmail, pointsVal, tag);
-		return;
-		
-	}
 }

@@ -74,15 +74,14 @@ public class Points {
 		}
 	}
 	
-	public synchronized int pointsRead(String email) {
+	public synchronized BalanceSequence pointsRead(String email) {
 		
 		if(!accounts.containsKey(email)) {
 			accounts.put(email, new BalanceSequence(initialBalance.get(), 0));
-			return initialBalance.get();
 		}
 
-		else
-			return accounts.get(email).getPoints();
+		
+		return accounts.get(email);
 	}
 
 
