@@ -46,9 +46,29 @@ public class HubPortImpl implements HubPortType {
 	 */
 	private HubEndpointManager endpointManager;
 
+	private HubFrontEnd frontEnd;
+
 	/** Constructor receives a reference to the endpoint manager. */
 	public HubPortImpl(HubEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
+
+		Collection<String> bindings = null;
+		try {
+			bindings = this.endpointManager.getUddiNaming().list("T08_Points%");
+		} catch (UDDINamingException e) {
+			System.out.println("UDDI Service unreachable, got exception" + e);
+			throw new RuntimeException();
+		}
+
+		Collection<PointsClient> clients = new ArrayList<PointsClient>();
+		for (String binding : bindings) {
+			try {
+				clients.add(new PointsClient(binding));
+			} catch (PointsClientException e) {
+				System.out.println("Cannot Reach Points server at " + binding + " got exception" + e);
+			}
+		}
+		this.frontEnd = new HubFrontEnd(clients); 
 	}
 
 	// Main operations -------------------------------------------------------
@@ -515,14 +535,11 @@ public class HubPortImpl implements HubPortType {
 
 	// View helpers ----------------------------------------------------------
 
-
-
 	private MenuId newMenuId(FoodId id) {
 		MenuId menuId = new MenuId();
 		menuId.setId(id.getMenuId());
 		return menuId;
 	}
-
 
 	private Food newFood(Menu menu, String restaurantId) {
 
@@ -588,7 +605,6 @@ public class HubPortImpl implements HubPortType {
 
 	}
 	// Exception helpers -----------------------------------------------------
-
 
 	private void throwInvalidUserId(final String message) throws InvalidUserIdFault_Exception {
 		InvalidUserIdFault faultInfo = new InvalidUserIdFault();
