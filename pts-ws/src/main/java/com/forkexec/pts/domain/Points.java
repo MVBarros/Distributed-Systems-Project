@@ -70,7 +70,8 @@ public class Points {
 		}
 		else {
 			if (tag > accounts.get(email).getSequence())
-				accounts.put(email, new BalanceSequence(points, tag));
+				accounts.get(email).setPoints(points);
+				accounts.get(email).setSequence(tag);
 		}
 		return accounts.get(email).getPoints();
 	}
@@ -79,9 +80,8 @@ public class Points {
 		
 		if(!accounts.containsKey(email)) {
 			accounts.put(email, new BalanceSequence(initialBalance.get(), 0));
+			
 		}
-
-		
 		return accounts.get(email);
 	}
 

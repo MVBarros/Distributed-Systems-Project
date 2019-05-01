@@ -79,7 +79,7 @@ public class PointsBalanceIT extends BaseIT {
 	public void getPointsOneSucessOneFail() throws InvalidEmailException, EmailAlreadyExistsException{
 		client.activateUser("valid@mail.com");
 		client.pointsBalance("valid@mail.com");
-		client.pointsBalance("unregistered@mail.com");
+		client.pointsBalance("ololol");
 	}
 
 	

@@ -64,9 +64,9 @@ public class AddPointsIT extends BaseIT {
 		client.addPoints("a@", 10);
 	}
 	
-	@Test(expected =InvalidEmailException.class)
 	public void addPointsUnregisteredEmail() throws InvalidEmailException, InvalidPointsException {
-		client.addPoints("notRegistered@mail.com", 10);
+		int a = client.addPoints("notRegistered@mail.com", 10);
+		assertEquals(a, 110);
 	}
 	
 	@Test(expected =InvalidPointsException.class)

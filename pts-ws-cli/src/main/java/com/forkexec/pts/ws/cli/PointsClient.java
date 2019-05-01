@@ -121,15 +121,10 @@ public class PointsClient  {
 	}
 	
 	
-	public void activateUser(String userEmail) throws EmailAlreadyExistsException, InvalidEmailException {
+	public void activateUser(String userEmail) throws InvalidEmailException {
 		
 		checkEmail(userEmail);
-		Balance balance = pointsRead(userEmail);
-		
-		if (balance.getTag() != 0)
-			/*user already existed*/
-			throw new EmailAlreadyExistsException("Email is already taken");
-		
+		pointsRead(userEmail);		
 	}
 
 	public int pointsBalance(String userEmail) throws InvalidEmailException {
@@ -145,7 +140,7 @@ public class PointsClient  {
 		
 		Balance b = pointsRead(userEmail);
 		
-		return pointsWrite(userEmail, pointsToAdd, b.getTag()+1);
+		return pointsWrite(userEmail, b.getPoints() + pointsToAdd, b.getTag()+1);
 		
 	}
 
