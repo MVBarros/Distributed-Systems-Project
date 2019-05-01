@@ -2,12 +2,9 @@ package com.forkexec.pts.ws;
 
 import javax.jws.WebService;
 
-import com.forkexec.pts.domain.InvalidEmailNameException;
-import com.forkexec.pts.domain.InvalidPointCountException;
-import com.forkexec.pts.domain.NoSuchEmailException;
-import com.forkexec.pts.domain.NotEnoughBalanceException;
+import com.forkexec.pts.domain.BalanceSequence;
 import com.forkexec.pts.domain.Points;
-import com.forkexec.pts.domain.RepeatedUserEmailException;
+
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -29,6 +26,23 @@ public class PointsPortImpl implements PointsPortType {
 
 	// Main operations -------------------------------------------------------
 
+	@Override
+	public Balance pointsRead(String userEmail) {
+		BalanceSequence bs = Points.getInstance().pointsRead(userEmail);
+		Balance newBalance = new Balance ();
+		newBalance.setPoints(bs.getPoints());
+		newBalance.setTag(bs.getSequence());
+		return newBalance;
+		
+	}
+
+	@Override
+	public void pointsWrite(String userEmail, Integer pointsVal, Long tag) {
+		
+		
+	}
+	
+	/*
 	@Override
 	public void activateUser(final String userEmail)
 			throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
@@ -104,6 +118,7 @@ public class PointsPortImpl implements PointsPortType {
 
 		return points;
 	}
+	*/
 
 	// Control operations ----------------------------------------------------
 	/** Diagnostic operation to check if service is running. */
@@ -148,31 +163,7 @@ public class PointsPortImpl implements PointsPortType {
 		throw new BadInitFault_Exception(message, faultInfo);
 	}
 
-	/** Helper to throw a new EmailAlreadyExistsFault exception. */
-	private void throwEmailAlreadyExistsFault(final String message) throws EmailAlreadyExistsFault_Exception {
-		final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
-		faultInfo.message = message;
-		throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
-	}
+	
 
-	/** Helper to throw a new InvalidEmailFault exception. */
-	private void throwInvalidEmailFault(final String message) throws InvalidEmailFault_Exception {
-		final InvalidEmailFault faultInfo = new InvalidEmailFault();
-		faultInfo.message = message;
-		throw new InvalidEmailFault_Exception(message, faultInfo);
-	}
-
-	/** Helper to throw a new NotEnoughBalanceFault exception. */
-	private void throwNotEnoughBalanceFault(final String message) throws NotEnoughBalanceFault_Exception {
-		final NotEnoughBalanceFault faultInfo = new NotEnoughBalanceFault();
-		faultInfo.message = message;
-		throw new NotEnoughBalanceFault_Exception(message, faultInfo);
-	}
-
-	/** Helper to throw a new NotEnoughBalanceFault exception. */
-	private void throwInvalidPointsFault(final String message) throws InvalidPointsFault_Exception {
-		final InvalidPointsFault faultInfo = new InvalidPointsFault();
-		faultInfo.message = message;
-		throw new InvalidPointsFault_Exception(message, faultInfo);
-	}
+	
 }
