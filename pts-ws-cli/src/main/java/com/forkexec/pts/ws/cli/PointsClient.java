@@ -7,6 +7,11 @@ import java.util.regex.Pattern;
 
 import javax.xml.ws.BindingProvider;
 
+import com.forkexec.pts.domain.EmailAlreadyExistsException;
+import com.forkexec.pts.domain.InvalidEmailException;
+import com.forkexec.pts.domain.InvalidEmailNameException;
+import com.forkexec.pts.domain.InvalidPointsException;
+import com.forkexec.pts.domain.NotEnoughBalanceException;
 import com.forkexec.pts.ws.*;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
@@ -116,27 +121,27 @@ public class PointsClient  {
 	}
 	
 	
-	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	public void activateUser(String userEmail) throws EmailAlreadyExistsException, InvalidEmailException {
 		//port.activateUser(userEmail);
 		
 	}
 	
 	
-	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
+	public int pointsBalance(String userEmail) throws InvalidEmailException {
 		//return port.pointsBalance(userEmail);
 		return 0;
 	}
 	
 	
 	public int addPoints(String userEmail, int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
+			throws InvalidEmailException, InvalidPointsException {
 		//return port.addPoints(userEmail, pointsToAdd);
 		return 0;
 	}
 
 	
 	public int spendPoints(String userEmail, int pointsToSpend)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+			throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		//return port.spendPoints(userEmail, pointsToSpend);
 		return 0;
 	}
@@ -160,9 +165,9 @@ public class PointsClient  {
 	}
 	
 	// auxiliary operations-------------------------------------------------
-	public void checkEmail(String email) throws InvalidEmailNameException {
+	public void checkEmail(String email) throws InvalidEmailException {
 
-		if (!PATTERN.matcher(email).matches()) throw new InvalidEmailNameException();
+		if (!PATTERN.matcher(email).matches()) throw new InvalidEmailException();
 }
 
 }
