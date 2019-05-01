@@ -12,18 +12,19 @@ import com.forkexec.pts.ws.PointsWriteResponse;
 import com.forkexec.pts.ws.Balance;
 import com.forkexec.pts.ws.cli.PointsClient;
 
-public class HubFrontEnd {
+public class HubFrontEnd  extends PointsClient{
 	private Collection<PointsClient> clients;
 	private int quorumSize;
 
 	private int writeValue;
 
-	public HubFrontEnd(Collection<PointsClient> clients) {
+	public HubFrontEnd(Collection<PointsClient> clients){
+		super();
 		this.clients = clients;
 		this.quorumSize = clients.size() / 2 + 1;
 	}
 
-	public synchronized int pointsWriteAsync(String email, int points, long tag) {
+	public synchronized int pointsWrite(String email, int points, long tag) {
 		AtomicInteger writeCounter = new AtomicInteger();
 		writeCounter.set(0);
 
@@ -59,7 +60,7 @@ public class HubFrontEnd {
 
 	}
 
-	public Balance pointsReadAsync(String email) {
+	public Balance pointsRead(String email) {
 		AtomicInteger respostasRecebidas = new AtomicInteger();
 		respostasRecebidas.set(0);
 

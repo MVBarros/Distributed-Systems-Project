@@ -73,6 +73,8 @@ public class PointsClient  {
 		uddiLookup();
 		createStub();
 	}
+	
+	public PointsClient() {};
 
 	/** UDDI lookup */
 	private void uddiLookup() throws PointsClientException {
