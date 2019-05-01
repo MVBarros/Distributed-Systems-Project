@@ -3,9 +3,11 @@ package com.forkexec.pts.ws.cli;
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.xml.ws.BindingProvider;
 
+import com.forkexec.pts.domain.InvalidEmailNameException;
 import com.forkexec.pts.ws.*;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
@@ -18,6 +20,11 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
  */
 public class PointsClient  {
 
+	
+	private static final Pattern PATTERN = Pattern
+			.compile("^[a-zA-Z0-9_+&*-]+(?:\\." + "[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-z" + "A-Z]{2,7}$");
+	
+	
 	/** WS service */
 	PointsService service = null;
 
@@ -105,13 +112,14 @@ public class PointsClient  {
 		return port.pointsRead(userEmail);
 	}
 
-	public void pointsWrite(String userEmail, int pointsVal, long seq) {
-		port.pointsWrite(userEmail, pointsVal, seq);
+	public int pointsWrite(String userEmail, int pointsVal, long seq) {
+		return port.pointsWrite(userEmail, pointsVal, seq);
 	}
 	
 	
 	public void activateUser(String userEmail) throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
 		//port.activateUser(userEmail);
+		
 	}
 	
 	
@@ -153,8 +161,11 @@ public class PointsClient  {
 		port.ctrlInit(startPoints);
 	}
 	
-	
 
-	
+	// auxiliary operations-------------------------------------------------
+	public void checkEmail(String email) throws InvalidEmailNameException {
+
+		if (!PATTERN.matcher(email).matches()) throw new InvalidEmailNameException();
+}
 
 }
