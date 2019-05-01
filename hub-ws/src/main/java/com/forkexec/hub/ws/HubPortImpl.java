@@ -58,7 +58,6 @@ public class HubPortImpl implements HubPortType {
 		if(frontEnd == null) {
 			Collection<String> bindings = null;
 			try {
-				System.out.println(this.endpointManager.getUddiNaming());
 				bindings = this.endpointManager.getUddiNaming().list("T08_Points%");
 			} catch (UDDINamingException e) {
 				System.out.println("UDDI Service unreachable, got exception" + e);
