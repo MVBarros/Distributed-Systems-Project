@@ -117,11 +117,11 @@ public class PointsClient  {
 	// async invocation methods ----------------------------------------------
 	
 	 public Future<?> pointsReadAsync(String userEmail, AsyncHandler<PointsReadResponse> asyncHandler) {
-	        return port.pointsReadAsync(userEmail);
+	        return port.pointsReadAsync(userEmail, asyncHandler);
 	 }
 	 
 	 public Future<?> pointsWriteAsync(String userEmail, int pointsVal, long seq, AsyncHandler<PointsWriteResponse> asyncHandler) {
-	        return port.pointsWriteAsync(userEmail, pointsVal, seq);
+	        return port.pointsWriteAsync(userEmail, pointsVal, seq, asyncHandler);
 	 }
 	
 
