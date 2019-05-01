@@ -3,10 +3,11 @@ package com.forkexec.pts.ws.cli;
 import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
+import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
-import javax.xml.ws.Response;
 
 import com.forkexec.pts.domain.InvalidEmailException;
 import com.forkexec.pts.domain.InvalidPointsException;
@@ -113,11 +114,11 @@ public class PointsClient  {
 	
 	// async invocation methods ----------------------------------------------
 	
-	 public Response<PointsReadResponse> pointsReadAsync(String userEmail) {
+	 public Future<?> pointsReadAsync(String userEmail, AsyncHandler<PointsReadResponse> asyncHandler) {
 	        return port.pointsReadAsync(userEmail);
 	 }
 	 
-	 public Response<PointsWriteResponse> pointsWriteAsync(String userEmail, int pointsVal, long seq) {
+	 public Future<?> pointsWriteAsync(String userEmail, int pointsVal, long seq, AsyncHandler<PointsWriteResponse> asyncHandler) {
 	        return port.pointsWriteAsync(userEmail, pointsVal, seq);
 	 }
 	
