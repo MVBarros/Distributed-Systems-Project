@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.forkexec.pts.ws.BadInitException;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.domain.*;
 

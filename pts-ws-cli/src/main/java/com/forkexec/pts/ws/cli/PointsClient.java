@@ -7,7 +7,6 @@ import java.util.regex.Pattern;
 
 import javax.xml.ws.BindingProvider;
 
-import com.forkexec.pts.domain.EmailAlreadyExistsException;
 import com.forkexec.pts.domain.InvalidEmailException;
 import com.forkexec.pts.domain.InvalidPointsException;
 import com.forkexec.pts.domain.NotEnoughBalanceException;
