@@ -35,9 +35,9 @@ public class PointsPortImpl implements PointsPortType {
 	}
 	
 	@Override
-	public void pointsWrite(String userEmail, Integer pointsVal, Long tag) {
-		Points.getInstance().pointsWrite(userEmail, pointsVal, tag);
-		return;
+	public int pointsWrite(String userEmail, Integer pointsVal, Long tag) {
+		return Points.getInstance().pointsWrite(userEmail, pointsVal, tag);
+		
 		
 	}
 	
