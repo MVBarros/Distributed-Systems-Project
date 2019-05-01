@@ -122,7 +122,7 @@ public class PointsClient  {
 	
 	
 	public void activateUser(String userEmail) throws EmailAlreadyExistsException, InvalidEmailException {
-		
+mi		
 		checkEmail(userEmail);
 		Balance balance = pointsRead(userEmail);
 		
@@ -153,7 +153,7 @@ public class PointsClient  {
 	public int spendPoints(String userEmail, int pointsToSpend)
 			throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		
-		if(pointsToSpend < 0)
+		if(pointsToSpend <= 0)
 			throw new InvalidPointsException("Cannot spend negative points");
 		
 		checkEmail(userEmail);

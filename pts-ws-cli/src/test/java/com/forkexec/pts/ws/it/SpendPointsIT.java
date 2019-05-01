@@ -8,11 +8,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.forkexec.pts.ws.BadInitException;
 import com.forkexec.pts.ws.BadInitFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
-import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
+import com.forkexec.pts.domain.*;
+
 
 /**
  * Test suite
@@ -38,7 +37,7 @@ public class SpendPointsIT extends BaseIT {
 	}
 	
 	@Before
-	public void setUp() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception, BadInitFault_Exception {
+	public void setUp() throws EmailAlreadyExistsException, InvalidEmailException, BadInitFault_Exception {
 		client.activateUser("registered@mail.com");
 
 	}
@@ -50,52 +49,52 @@ public class SpendPointsIT extends BaseIT {
 	
 	//Bad Input Tests
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void spendPointsNullEmail() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void spendPointsNullEmail() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints(null, 1);
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void spendPointsEmptyEmail() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void spendPointsEmptyEmail() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("", 1);
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void spendPointsInvalidEmail() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void spendPointsInvalidEmail() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("a@", 1);
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void spendPointsUnregisteredEmail1() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
-		client.spendPoints("notRegistered@mail.com", 1);
+	public void spendPointsUnregisteredEmail1() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
+		int i = client.spendPoints("notRegistered@mail.com", 1);
+		assertEquals(i, 99);
 	}
 	
-	@Test(expected =InvalidPointsFault_Exception.class)
-	public void spendPointsZeroPoints() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test(expected =InvalidPointsException.class)
+	public void spendPointsZeroPoints() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("registered@mail.com", 0);
 	}
 	
-	@Test(expected =InvalidPointsFault_Exception.class)
-	public void spendPointsNegativePoints() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test(expected =InvalidPointsException.class)
+	public void spendPointsNegativePoints() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("registered@mail.com", -1);
 	}
 	
 	@Test
-	public void spendPointsSuccess() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	public void spendPointsSuccess() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("registered@mail.com", 1);
 		assertEquals(client.pointsBalance("registered@mail.com"), 99);
 
 	}
 	
 	//Main Tests
-	@Test(expected =InvalidPointsFault_Exception.class)
-	public void spendPointsOneSucessOneFail() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test(expected =InvalidPointsException.class)
+	public void spendPointsOneSucessOneFail() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("registered@mail.com", 1);
 		client.spendPoints("registered@mail.com", -1);
 	}
 	
 	@Test
-	public void spendPoints5TimesSucess() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	public void spendPoints5TimesSucess() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("registered@mail.com", 1);
 		client.spendPoints("registered@mail.com", 1);
 		client.spendPoints("registered@mail.com", 1);
@@ -105,19 +104,19 @@ public class SpendPointsIT extends BaseIT {
 	}
 	
 	@Test
-	public void spendAllPoints() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	public void spendAllPoints() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("registered@mail.com", 100);
 		assertEquals(client.pointsBalance("registered@mail.com"), 0);
 
 	}
 	
-	@Test(expected =NotEnoughBalanceFault_Exception.class)
-	public void spendPointsMoreThanBalance() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test(expected =NotEnoughBalanceException.class)
+	public void spendPointsMoreThanBalance() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("registered@mail.com", 101);
 	}
 	
-	@Test(expected =NotEnoughBalanceFault_Exception.class)
-	public void spendPointsCombinedMoreThanBalance() throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
+	@Test(expected =NotEnoughBalanceException.class)
+	public void spendPointsCombinedMoreThanBalance() throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
 		client.spendPoints("registered@mail.com", 90);
 		client.spendPoints("registered@mail.com", 11);
 	}

@@ -4,9 +4,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+import com.forkexec.pts.domain.*;
 
 /**
  * Test suite
@@ -37,72 +35,72 @@ public class ActivateUserIT extends BaseIT {
 	}
 	
 	// bad input tests
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserNullEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserNullEmail() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser(null);
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserEmptyEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserEmptyEmail() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("");
 	}
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserWhiteSpaceEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserWhiteSpaceEmail() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser(" ");
 	}
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserNewilineEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserNewilineEmail() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("\n");
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserTabEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserTabEmail() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("\t");
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserInvalidEmail() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserInvalidEmail() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("a@");
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserInvalidEmail2() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserInvalidEmail2() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("a.@");
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserInvalidEmail3() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserInvalidEmail3() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser(".33@");
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserInvalidEmail4() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserInvalidEmail4() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("@");
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserInvalidEmail5() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserInvalidEmail5() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("@a");
 	}
 	
-	@Test(expected =InvalidEmailFault_Exception.class)
-	public void activateUserInvalidEmail6() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =InvalidEmailException.class)
+	public void activateUserInvalidEmail6() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("@a..");
 	}
 	
 	@Test
-	public void activateUserSucess() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	public void activateUserSucess() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("teste@gmail.com");
 	}
 	
 	@Test
-	public void activateTwoUsersSucess() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	public void activateTwoUsersSucess() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("teste@gmail.com");
 		client.activateUser("teste1@gmail.com");
 	}
 	
-	@Test(expected =EmailAlreadyExistsFault_Exception.class)
-	public void activateWithMailAlreadyUsed() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
+	@Test(expected =EmailAlreadyExistsException.class)
+	public void activateWithMailAlreadyUsed() throws EmailAlreadyExistsException, InvalidEmailException {
 		client.activateUser("teste@gmai.com");
 		client.activateUser("teste@gmai.com");
 	}
