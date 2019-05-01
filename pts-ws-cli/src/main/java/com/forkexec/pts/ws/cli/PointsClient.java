@@ -127,8 +127,6 @@ public class PointsClient  {
 	}
 
 	public int pointsBalance(String userEmail) throws InvalidEmailException {
-		if (userEmail == null)
-			throw new InvalidEmailException("Email can't be null");
 		checkEmail(userEmail);
 		return port.pointsRead(userEmail).getPoints();
 	}
@@ -137,6 +135,8 @@ public class PointsClient  {
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailException, InvalidPointsException {
 		//return port.addPoints(userEmail, pointsToAdd);
+		
+		
 		return 0;
 	}
 
@@ -168,7 +168,7 @@ public class PointsClient  {
 
 	// auxiliary operations-------------------------------------------------
 	public void checkEmail(String email) throws InvalidEmailException {
-
+		if (email == null) throw new InvalidEmailException("Email cant be null");
 		if (!PATTERN.matcher(email).matches()) throw new InvalidEmailException();
 }
 
