@@ -9,6 +9,7 @@ import javax.xml.ws.Response;
 
 import com.forkexec.pts.ws.PointsReadResponse;
 import com.forkexec.pts.ws.PointsWriteResponse;
+import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.Balance;
 import com.forkexec.pts.ws.cli.PointsClient;
 
@@ -23,6 +24,27 @@ public class HubFrontEnd  extends PointsClient{
 		this.clients = clients;
 		this.quorumSize = clients.size() / 2 + 1;
 	}
+	
+	public void ctrlClear() {
+		for (PointsClient client : clients) {
+			client.ctrlClear();
+		}
+	}
+	
+	public void ctrlInit(int pts) throws BadInitFault_Exception {
+		for (PointsClient client : clients) {
+			client.ctrlInit(pts);
+		}
+	}
+	
+	public String ctrlPing(String str) {
+		String result = "";
+		for (PointsClient client : clients) {
+			result.concat(client.ctrlPing(str));
+		}
+		return result;
+	}
+	
 
 	public synchronized int pointsWrite(String email, int points, long tag) {
 		AtomicInteger writeCounter = new AtomicInteger();
