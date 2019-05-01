@@ -125,12 +125,11 @@ public class PointsClient  {
 		//port.activateUser(userEmail);
 		
 	}
-	
-	
 
 	public int pointsBalance(String userEmail) throws InvalidEmailException {
 		if (userEmail == null)
 			throw new InvalidEmailException("Email can't be null");
+		checkEmail(userEmail);
 		return port.pointsRead(userEmail).getPoints();
 	}
 	
