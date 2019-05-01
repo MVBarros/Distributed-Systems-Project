@@ -1,10 +1,14 @@
 package com.forkexec.hub.ws;
 
 import java.util.Collection;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.Response;
 
+import com.forkexec.pts.ws.Balance;
+import com.forkexec.pts.ws.PointsReadResponse;
 import com.forkexec.pts.ws.cli.PointsClient;
 
 public class HubFrontEnd {
@@ -16,17 +20,45 @@ public class HubFrontEnd {
 		this.quorumSize = clients.size() / 2 + 1;
 	}
 	
-	public int pointsReadAsync(String email) {
+	public void pointsReadAsync(String email) {
+		AtomicInteger respostasRecebidas = new AtomicInteger();
+		
 		for (PointsClient client: clients) {
+			
+			Balance bestReturn = new Balance();
+			bestReturn.setTag((long) -1);
+			
 			client.pointsReadAsync(email, new AsyncHandler<PointsReadResponse>() {
 				@Override
 		        public void handleResponse(Response<PointsReadResponse> response) {
-					
-				}
-				
-		});
+					try {
+						respostasRecebidas.incrementAndGet();
+						if (bestReturn.getTag() < response.get().getReturn().getTag()) {
+							bestReturn.setPoints(response.get().getReturn().getPoints());
+							bestReturn.setTag(response.get().getReturn().getTag());
+							}
+						
+						} catch (InterruptedException e) {
+							System.out.println("Caught interrupted exception.");
+	                        System.out.print("Cause: ");
+	                        System.out.println(e.getCause());
+						} catch (ExecutionException e) {
+							System.out.println("Caught execution exception.");
+	                        System.out.print("Cause: ");
+	                        System.out.println(e.getCause());
+						}
+					} 
+				});
 			
-		
+			 while (respostasRecebidas.get() < quorumSize) {
+	                try {
+						Thread.sleep(10 /* milliseconds */);
+					} catch (InterruptedException e) {
+						System.out.println("Caught interrupted exception.");
+                        System.out.print("Cause: ");
+                        System.out.println(e.getCause());
+					}
+	         }		
 		
 		}
 	}
