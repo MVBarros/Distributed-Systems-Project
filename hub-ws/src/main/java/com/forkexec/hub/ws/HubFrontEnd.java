@@ -20,13 +20,14 @@ public class HubFrontEnd {
 		this.quorumSize = clients.size() / 2 + 1;
 	}
 	
-	public void pointsReadAsync(String email) {
+	public Balance pointsReadAsync(String email) {
 		AtomicInteger respostasRecebidas = new AtomicInteger();
+		respostasRecebidas.set(0);
+		
+		Balance bestReturn = new Balance();
+		bestReturn.setTag((long) -1);
 		
 		for (PointsClient client: clients) {
-			
-			Balance bestReturn = new Balance();
-			bestReturn.setTag((long) -1);
 			
 			client.pointsReadAsync(email, new AsyncHandler<PointsReadResponse>() {
 				@Override
@@ -58,9 +59,8 @@ public class HubFrontEnd {
                         System.out.print("Cause: ");
                         System.out.println(e.getCause());
 					}
-	         }		
-		
-		}
+			 }}
+		return bestReturn;
 	}
 	
 	
