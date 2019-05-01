@@ -27,6 +27,7 @@ public class Points {
 	private Map<String, BalanceSequence> accounts = new ConcurrentHashMap<String, BalanceSequence>();
 
 
+
 	// Singleton -------------------------------------------------------------
 
 	/**
@@ -72,5 +73,17 @@ public class Points {
 			return;
 		}
 	}
+	
+	public synchronized int pointsRead(String email) {
+		
+		if(!accounts.containsKey(email)) {
+			accounts.put(email, new BalanceSequence(initialBalance.get(), 0));
+			return initialBalance.get();
+		}
+
+		else
+			return accounts.get(email).getPoints();
+	}
+
 
 }

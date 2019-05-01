@@ -1,9 +1,11 @@
 package com.forkexec.pts.domain;
 
 public class BalanceSequence {
+	
 	private int points;
 	private long sequence;
 	
+
 	public int compareTo(BalanceSequence bs) {
 		return (int) (sequence - bs.getSequence() );
 	}
