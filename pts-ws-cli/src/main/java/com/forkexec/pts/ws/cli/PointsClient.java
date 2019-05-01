@@ -131,20 +131,22 @@ public class PointsClient  {
 			throw new EmailAlreadyExistsException("Email is already taken");
 		
 	}
-	
-	
 
 	public int pointsBalance(String userEmail) throws InvalidEmailException {
-		if (userEmail == null)
-			throw new InvalidEmailException("Email can't be null");
-		return port.pointsRead(userEmail).getPoints();
+		checkEmail(userEmail);
+		return pointsRead(userEmail).getPoints();
 	}
 	
 	
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailException, InvalidPointsException {
-		//return port.addPoints(userEmail, pointsToAdd);
-		return 0;
+		checkEmail(userEmail);
+		if (pointsToAdd <= 0) throw new InvalidPointsException("Points must be > 0"); 
+		
+		Balance b = pointsRead(userEmail);
+		
+		return pointsWrite(userEmail, pointsToAdd, b.getTag()+1);
+		
 	}
 
 	
@@ -185,7 +187,7 @@ public class PointsClient  {
 
 	// auxiliary operations-------------------------------------------------
 	public void checkEmail(String email) throws InvalidEmailException {
-
+		if (email == null) throw new InvalidEmailException("Email cant be null");
 		if (!PATTERN.matcher(email).matches()) throw new InvalidEmailException();
 }
 
