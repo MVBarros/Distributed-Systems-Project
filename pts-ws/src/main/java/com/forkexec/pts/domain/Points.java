@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import java.util.regex.Pattern;
 
 /**
  * Points
@@ -22,12 +21,11 @@ public class Points {
 	 * Global with the current value for the initial balance of every new client
 	 */
 	private final AtomicInteger initialBalance = new AtomicInteger(DEFAULT_INITIAL_BALANCE);
+	
+	
+	
+	private Map<String, BalanceSequence> accounts = new ConcurrentHashMap<String, BalanceSequence>();
 
-	private Map<String, Integer> accounts = new ConcurrentHashMap<String, Integer>();
-
-	/** Regex to check emails */
-	private static final Pattern PATTERN = Pattern
-			.compile("^[a-zA-Z0-9]+(.[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(.[a-zA-Z0-9]+)*");
 
 	// Singleton -------------------------------------------------------------
 
@@ -64,55 +62,15 @@ public class Points {
 		this.initialBalance.set(points);
 	}
 
-	public synchronized int getUserPoints(String email) throws NoSuchEmailException{
-		
-		if(!accounts.containsKey(email)) throw new NoSuchEmailException();
-
-		return accounts.get(email);
-	}
-
-	public synchronized int addUserPoints(String email, int toAdd) throws InvalidPointCountException, NoSuchEmailException  {
-		
-		if (toAdd <= 0) throw new InvalidPointCountException();
-		
-		if(!accounts.containsKey(email)) throw new NoSuchEmailException();
-		
-		accounts.replace(email, accounts.get(email) + toAdd);
-
-		return accounts.get(email);
-	}
-	
-
-	public synchronized int removeUserPoints(String email, int toRemove) throws InvalidPointCountException, NoSuchEmailException, NotEnoughBalanceException {
-		
-		if (toRemove <= 0) throw new InvalidPointCountException();
-		
-		if(!accounts.containsKey(email)) throw new NoSuchEmailException();
-		
-		if(toRemove > accounts.get(email)) throw new NotEnoughBalanceException();
-		
-		accounts.replace(email, accounts.get(email) - toRemove);
-
-		return accounts.get(email);
-	}
-
-	/* Email functions */
-
-	public void checkEmail(String email) throws InvalidEmailNameException {
-
-		if (!PATTERN.matcher(email).matches()) throw new InvalidEmailNameException();
-	}
-
-	public synchronized void checkEmailExists(String email) throws RepeatedUserEmailException {
-		if (accounts.containsKey(email)) throw new RepeatedUserEmailException();
-	}
-
-	/* Account functions */
-	public synchronized void addAccount(String email) throws InvalidEmailNameException,
-												RepeatedUserEmailException {
-		checkEmail(email);
-		checkEmailExists(email);
-		accounts.put(email, initialBalance.get());
+	public synchronized void pointsWrite(String email, int points, long tag) {
+		if(!accounts.containsKey(email)) {
+			accounts.put(email, new BalanceSequence(points, tag));
+		}
+		else {
+			if (tag > accounts.get(email).getSequence())
+				accounts.put(email, new BalanceSequence(points, tag));
+			return;
+		}
 	}
 
 }

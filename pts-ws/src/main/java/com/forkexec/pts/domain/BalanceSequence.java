@@ -21,5 +21,10 @@ public class BalanceSequence {
 		this.sequence = sequence;
 	}
 	
+	public BalanceSequence(int points, long sequence) {
+		this.points = points;
+		this.sequence = sequence;
+	}
+	
 	
 }
