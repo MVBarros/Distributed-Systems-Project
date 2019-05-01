@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.xml.ws.BindingProvider;
+import javax.xml.ws.Response;
 
 import com.forkexec.pts.domain.InvalidEmailException;
 import com.forkexec.pts.domain.InvalidPointsException;
@@ -109,6 +110,17 @@ public class PointsClient  {
 			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, wsURL);
 		}
 	}
+	
+	// async invocation methods ----------------------------------------------
+	
+	 public Response<PointsReadResponse> pointsReadAsync(String userEmail) {
+	        return port.pointsReadAsync(userEmail);
+	 }
+	 
+	 public Response<PointsWriteResponse> pointsWriteAsync(String userEmail, int pointsVal, long seq) {
+	        return port.pointsWriteAsync(userEmail, pointsVal, seq);
+	 }
+	
 
 	// remote invocation methods ----------------------------------------------
 	public Balance pointsRead(String userEmail) {
