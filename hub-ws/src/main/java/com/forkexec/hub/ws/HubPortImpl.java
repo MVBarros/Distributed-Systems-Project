@@ -14,11 +14,10 @@ import javax.jws.WebService;
 import com.forkexec.cc.ws.cli.CCClient;
 import com.forkexec.hub.domain.CartQuantityException;
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.pts.domain.InvalidEmailException;
+import com.forkexec.pts.domain.InvalidPointsException;
+import com.forkexec.pts.domain.NotEnoughBalanceException;
 import com.forkexec.pts.ws.BadInitFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
-import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
@@ -70,16 +69,18 @@ public class HubPortImpl implements HubPortType {
 		}
 		this.frontEnd = new HubFrontEnd(clients); 
 	}
+	
+	public HubFrontEnd getFrontEnd() {
+		return frontEnd;
+	}
 
 	// Main operations -------------------------------------------------------
 
 	@Override
 	public synchronized void activateAccount(String userId) throws InvalidUserIdFault_Exception {
 		try {
-			getPoints().activateUser(userId);
-		} catch (EmailAlreadyExistsFault_Exception e) {
-			throwInvalidUserId("Account has already been activated");
-		} catch (InvalidEmailFault_Exception e) {
+			getFrontEnd().activateUser(userId);
+		} catch (InvalidEmailException e) {
 			throwInvalidUserId("Email not valid");
 		}
 	}
@@ -97,24 +98,24 @@ public class HubPortImpl implements HubPortType {
 		try {
 			switch (moneyToAdd) {
 			case 10:
-				getPoints().addPoints(userId, 1000);
+				getFrontEnd().addPoints(userId, 1000);
 				break;
 			case 20:
-				getPoints().addPoints(userId, 2100);
+				getFrontEnd().addPoints(userId, 2100);
 				break;
 			case 30:
-				getPoints().addPoints(userId, 3300);
+				getFrontEnd().addPoints(userId, 3300);
 				break;
 			case 50:
-				getPoints().addPoints(userId, 5500);
+				getFrontEnd().addPoints(userId, 5500);
 				break;
 			default:
 				throwInvalidMoney("Invalid Money Amount");
 			}
-		} catch (InvalidEmailFault_Exception e) {
+		} catch (InvalidEmailException e) {
 			throwInvalidUserId("Invalid user Id");
 
-		} catch (InvalidPointsFault_Exception e) {
+		} catch (InvalidPointsException e) {
 			throwInvalidMoney("Invalid Money Amount");
 		}
 
@@ -227,8 +228,8 @@ public class HubPortImpl implements HubPortType {
 
 		}
 		try {
-			getPoints().spendPoints(userId, totalpoints);
-		} catch (NotEnoughBalanceFault_Exception e) {
+			getFrontEnd().spendPoints(userId, totalpoints);
+		} catch (NotEnoughBalanceException e) {
 			throwNotEnoughPoints("Cannot pay for that cart");
 		} catch (Exception e) {
 			/* Will never happen */
@@ -271,8 +272,8 @@ public class HubPortImpl implements HubPortType {
 		int points = 0;
 
 		try {
-			points = getPoints().pointsBalance(userId);
-		} catch (InvalidEmailFault_Exception e) {
+			points = getFrontEnd().pointsBalance(userId);
+		} catch (InvalidEmailException e) {
 			throwInvalidUserId("Id given isn't valid, got exception" + e);
 		}
 		return points;
@@ -383,7 +384,7 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlClear() {
 		Hub.getInstance().clear();
-		getPoints().ctrlClear();
+		getFrontEnd().ctrlClear();
 		Map<String, RestaurantClient> clients = getRestaurants();
 
 		for (RestaurantClient client : clients.values()) {
@@ -440,7 +441,7 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
 		try {
-			getPoints().ctrlInit(startPoints);
+			getFrontEnd().ctrlInit(startPoints);
 		} catch (BadInitFault_Exception e) {
 			throwInvalidInit("cannot init Points with those points");
 		}
@@ -449,8 +450,8 @@ public class HubPortImpl implements HubPortType {
 
 	private void checkUserID(String userId) throws InvalidUserIdFault_Exception {
 		try {
-			getPoints().pointsBalance(userId);
-		} catch (InvalidEmailFault_Exception e) {
+			getFrontEnd().pointsBalance(userId);
+		} catch (InvalidEmailException e) {
 			throwInvalidUserId("Id given isn't valid, got exception" + e);
 		}
 
@@ -510,22 +511,6 @@ public class HubPortImpl implements HubPortType {
 
 		return restaurants;
 
-	}
-
-	private PointsClient getPoints() {
-		String binding = null;
-		try {
-			binding = this.endpointManager.getUddiNaming().lookup("T08_Points%");
-		} catch (UDDINamingException e) {
-			System.out.println("UDDI Service unreachable, got exception" + e);
-			throw new RuntimeException();
-		}
-		try {
-			return new PointsClient(binding);
-		} catch (PointsClientException e) {
-			System.out.println("Cannot Reach Points server at " + binding + " got exception" + e);
-			throw new RuntimeException();
-		}
 	}
 
 	private CCClient getCreditCard() {
