@@ -5,10 +5,10 @@ public class InvalidEmailException extends Exception {
 	
 	private static final long serialVersionUID = 241232231L;
 
-	public InvalidEmailNameException()  {
+	public InvalidEmailException()  {
 	}
 
-	public InvalidEmailNameException(String message) {
+	public InvalidEmailException(String message) {
 		super(message);
 	}
 }

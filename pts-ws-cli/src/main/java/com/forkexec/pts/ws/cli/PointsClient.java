@@ -9,9 +9,9 @@ import javax.xml.ws.BindingProvider;
 
 import com.forkexec.pts.domain.EmailAlreadyExistsException;
 import com.forkexec.pts.domain.InvalidEmailException;
-import com.forkexec.pts.domain.InvalidEmailNameException;
 import com.forkexec.pts.domain.InvalidPointsException;
 import com.forkexec.pts.domain.NotEnoughBalanceException;
+
 import com.forkexec.pts.ws.*;
 
 import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
@@ -127,9 +127,11 @@ public class PointsClient  {
 	}
 	
 	
+
 	public int pointsBalance(String userEmail) throws InvalidEmailException {
-		//return port.pointsBalance(userEmail);
-		return 0;
+		if (userEmail == null)
+			throw new InvalidEmailException("Email can't be null");
+		return port.pointsRead(userEmail).getPoints();
 	}
 	
 	
@@ -164,6 +166,7 @@ public class PointsClient  {
 		port.ctrlInit(startPoints);
 	}
 	
+
 	// auxiliary operations-------------------------------------------------
 	public void checkEmail(String email) throws InvalidEmailException {
 
