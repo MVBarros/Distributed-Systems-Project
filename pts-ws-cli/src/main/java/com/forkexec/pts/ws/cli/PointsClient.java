@@ -122,7 +122,7 @@ public class PointsClient  {
 	
 	
 	public void activateUser(String userEmail) throws EmailAlreadyExistsException, InvalidEmailException {
-mi		
+		
 		checkEmail(userEmail);
 		Balance balance = pointsRead(userEmail);
 		

@@ -63,6 +63,7 @@ public class Points {
 		this.initialBalance.set(points);
 	}
 
+	
 	public synchronized int pointsWrite(String email, int points, long tag) {
 		if(!accounts.containsKey(email)) {
 			accounts.put(email, new BalanceSequence(points, tag));
