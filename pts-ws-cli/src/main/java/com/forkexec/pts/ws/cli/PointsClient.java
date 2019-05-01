@@ -128,16 +128,19 @@ public class PointsClient  {
 
 	public int pointsBalance(String userEmail) throws InvalidEmailException {
 		checkEmail(userEmail);
-		return port.pointsRead(userEmail).getPoints();
+		return pointsRead(userEmail).getPoints();
 	}
 	
 	
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailException, InvalidPointsException {
-		//return port.addPoints(userEmail, pointsToAdd);
+		checkEmail(userEmail);
+		if (pointsToAdd <= 0) throw new InvalidPointsException("Points must be > 0"); 
 		
+		Balance b = pointsRead(userEmail);
 		
-		return 0;
+		return pointsWrite(userEmail, pointsToAdd, b.getTag()+1);
+		
 	}
 
 	
