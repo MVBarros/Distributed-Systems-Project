@@ -115,9 +115,10 @@ public class PointsClient  {
 	}
 	
 	
-	public int pointsBalance(String userEmail) throws InvalidEmailFault_Exception {
-		//return port.pointsBalance(userEmail);
-		return 0;
+	public int pointsBalance(String userEmail) throws InvalidEmailNameException {
+		if (userEmail == null)
+			throw new InvalidEmailNameException("Email can't be null");
+		return port.pointsRead(userEmail).getPoints();
 	}
 	
 	
@@ -151,5 +152,9 @@ public class PointsClient  {
 	public void ctrlInit(int startPoints) throws BadInitFault_Exception {
 		port.ctrlInit(startPoints);
 	}
+	
+	
+
+	
 
 }
