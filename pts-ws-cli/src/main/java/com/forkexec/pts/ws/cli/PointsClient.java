@@ -122,7 +122,13 @@ public class PointsClient  {
 	
 	
 	public void activateUser(String userEmail) throws EmailAlreadyExistsException, InvalidEmailException {
-		//port.activateUser(userEmail);
+		
+		checkEmail(userEmail);
+		Balance balance = pointsRead(userEmail);
+		
+		if (balance.getTag() != 0)
+			/*user already existed*/
+			throw new EmailAlreadyExistsException("Email is already taken");
 		
 	}
 	
@@ -144,8 +150,18 @@ public class PointsClient  {
 	
 	public int spendPoints(String userEmail, int pointsToSpend)
 			throws InvalidEmailException, InvalidPointsException, NotEnoughBalanceException {
-		//return port.spendPoints(userEmail, pointsToSpend);
-		return 0;
+		
+		if(pointsToSpend < 0)
+			throw new InvalidPointsException("Cannot spend negative points");
+		
+		checkEmail(userEmail);
+		
+		Balance balance = pointsRead(userEmail);
+		
+		if (balance.getPoints() < pointsToSpend)
+			throw new NotEnoughBalanceException("Cannot spend that ammount");
+		
+		return pointsWrite(userEmail, balance.getPoints() - pointsToSpend, balance.getTag() + 1);
 	}
 	
 	
