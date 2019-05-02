@@ -26,15 +26,13 @@ public class PointsFrontEnd {
 
 	private int quorumSize;
 	/* Thread access */
-	static AtomicInteger writeCounter = new AtomicInteger();
 	static int writeValue;
 
-	static AtomicInteger readCounter = new AtomicInteger();
 	static Balance bestReturn = new Balance();
 
 	/* Locks */
 
-	static Map<String, Object> locks = new ConcurrentHashMap<>();
+	static Map<String, AtomicInteger> locks = new ConcurrentHashMap<>();
 
 	/** WS service */
 	PointsService service = null;
@@ -140,8 +138,8 @@ public class PointsFrontEnd {
 	}
 
 	public int pointsWrite(String email, int points, long tag) {
-		synchronized (locks.computeIfAbsent(email, k -> new Object())) {
-			writeCounter.set(0);
+		synchronized (locks.computeIfAbsent(email, k -> new AtomicInteger())) {
+			locks.get(email).set(0);
 
 			for (PointsPortType port : ports) {
 				port.pointsWriteAsync(email, points, tag, new AsyncHandler<PointsWriteResponse>() {
@@ -150,7 +148,7 @@ public class PointsFrontEnd {
 					public synchronized void handleResponse(Response<PointsWriteResponse> response) {
 						try {
 							writeValue = response.get().getReturn();
-							writeCounter.getAndIncrement();
+							locks.get(email).getAndIncrement();
 						} catch (InterruptedException e) {
 							System.out.println("Caught interrupted exception.");
 							System.out.print("Cause: ");
@@ -163,7 +161,7 @@ public class PointsFrontEnd {
 					}
 				});
 			}
-			while (writeCounter.get() < quorumSize) {
+			while (locks.get(email).get() < quorumSize) {
 				try {
 					/* Wait for Quorum */
 					Thread.sleep(10);
@@ -180,8 +178,8 @@ public class PointsFrontEnd {
 	}
 
 	public Balance pointsRead(String email) {
-		synchronized (locks.computeIfAbsent(email, k -> new Object())) {
-			readCounter.set(0);
+		synchronized (locks.computeIfAbsent(email, k -> new AtomicInteger())) {
+			locks.get(email).set(0);
 
 			bestReturn = new Balance();
 			bestReturn.setTag((long) -1);
@@ -197,7 +195,7 @@ public class PointsFrontEnd {
 								bestReturn.setPoints(response.get().getReturn().getPoints());
 								bestReturn.setTag(response.get().getReturn().getTag());
 							}
-							readCounter.incrementAndGet();
+							locks.get(email).incrementAndGet();
 
 						} catch (InterruptedException e) {
 							System.out.println("Caught interrupted exception.");
@@ -212,7 +210,7 @@ public class PointsFrontEnd {
 				});
 			}
 
-			while (readCounter.get() < quorumSize) {
+			while (locks.get(email).get() < quorumSize) {
 				try {
 					Thread.sleep(10 /* milliseconds */);
 					/* Wait for Quorum */
