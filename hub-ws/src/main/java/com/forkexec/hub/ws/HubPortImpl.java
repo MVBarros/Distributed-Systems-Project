@@ -44,8 +44,8 @@ public class HubPortImpl implements HubPortType {
 	 * lifecycle.
 	 */
 	private HubEndpointManager endpointManager;
-
-	private HubFrontEnd frontEnd = null;
+	
+	private PointsClient pointsClient;
 
 	/** Constructor receives a reference to the endpoint manager. */
 	public HubPortImpl(HubEndpointManager endpointManager) {
@@ -54,8 +54,8 @@ public class HubPortImpl implements HubPortType {
 		
 	}
 	
-	public HubFrontEnd getFrontEnd() {
-		if(frontEnd == null) {
+	public PointsClient getFrontEnd() {
+		if(pointsClient == null) {
 			Collection<String> bindings = null;
 			try {
 				bindings = this.endpointManager.getUddiNaming().list("T08_Points%");
@@ -64,18 +64,15 @@ public class HubPortImpl implements HubPortType {
 				throw new RuntimeException();
 			}
 
-			Collection<PointsClient> clients = new ArrayList<PointsClient>();
-			for (String binding : bindings) {
-				try {
-					clients.add(new PointsClient(binding));
-				} catch (PointsClientException e) {
-					System.out.println("Cannot Reach Points server at " + binding + " got exception" + e);
-				}
+			try {
+				this.pointsClient = new PointsClient(bindings);
+			} catch (PointsClientException e) {
+				System.out.println("Cannot reach client got exception" + e.getMessage());
+				throw new RuntimeException();
 			}
-			this.frontEnd = new HubFrontEnd(clients); 
 		}
 			
-		return frontEnd;
+		return pointsClient;
 	}
 
 	// Main operations -------------------------------------------------------
@@ -362,19 +359,13 @@ public class HubPortImpl implements HubPortType {
 				}
 			});
 
-			try {
-				bindingsCol = this.endpointManager.getUddiNaming().list("T08_Points%");
-				for (String binding : bindingsCol) {
-					responses.append(new PointsClient(binding).ctrlPing("hub").concat("\n"));
-				}
-			} catch (PointsClientException e) {
-				throw new RuntimeException();
-			}
-
+				
 		} catch (UDDINamingException e) {
 			System.out.println("UDDI Service unreachable, got exception" + e);
 			return null;
 		}
+		
+		responses.append(getFrontEnd().ctrlPing("hub").concat("\n"));
 		responses.append(new CCClient().ping("hub").concat("\n"));
 		return responses.append(builder.toString()).toString();
 	}
