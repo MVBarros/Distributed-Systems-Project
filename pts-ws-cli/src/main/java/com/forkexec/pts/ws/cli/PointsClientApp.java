@@ -1,5 +1,7 @@
 package com.forkexec.pts.ws.cli;
 
+import java.util.ArrayList;
+
 /** 
  * Client application. 
  * 
@@ -29,7 +31,9 @@ public class PointsClientApp {
 
 		if (wsURL != null) {
 			System.out.printf("Creating client for server at %s%n", wsURL);
-			client = new PointsClient(wsURL);
+			ArrayList<String> list = new ArrayList<String>();
+			list.add(wsURL);
+			client = new PointsClient(list);
 		} else if (uddiURL != null) {
 			System.out.printf("Creating client using UDDI at %s for server with name %s%n", uddiURL, wsName);
 			client = new PointsClient(uddiURL, wsName);

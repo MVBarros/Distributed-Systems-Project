@@ -7,8 +7,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
+import com.forkexec.pts.domain.EmailAlreadyExistsException;
+import com.forkexec.pts.domain.InvalidEmailException;
+
+
+
 
 /**
  * Test suite
@@ -18,7 +21,7 @@ public class PointsBalanceIT extends BaseIT {
 	
 // one-time initialization and clean-up
 	@BeforeClass
-	public static void oneTimeSetUp() throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception{
+	public static void oneTimeSetUp(){
 		client.ctrlClear();
 	}
 	
@@ -39,18 +42,18 @@ public class PointsBalanceIT extends BaseIT {
 	}
 	
 	// bad input tests
-	@Test(expected=InvalidEmailFault_Exception.class)
-	public void getPointsWithNullEmail() throws InvalidEmailFault_Exception {
+	@Test(expected=InvalidEmailException.class)
+	public void getPointsWithNullEmail() throws InvalidEmailException {
 		client.pointsBalance(null);
 	}
 	
-	@Test(expected=InvalidEmailFault_Exception.class)
-	public void getPointsWithEmptyEmail() throws InvalidEmailFault_Exception {
+	@Test(expected=InvalidEmailException.class)
+	public void getPointsWithEmptyEmail() throws InvalidEmailException {
 		client.pointsBalance("");
 	}
 	
-	@Test(expected=InvalidEmailFault_Exception.class)
-	public void getPointsWithInvalidEmail() throws InvalidEmailFault_Exception {
+	@Test(expected=InvalidEmailException.class)
+	public void getPointsWithInvalidEmail() throws InvalidEmailException {
 		client.pointsBalance("test@");
 	}
 	
@@ -58,25 +61,25 @@ public class PointsBalanceIT extends BaseIT {
 	//Main Tests
 	
 	@Test
-	public void getPointsSucess() throws InvalidEmailFault_Exception, EmailAlreadyExistsFault_Exception {
+	public void getPointsSucess() throws  InvalidEmailException, EmailAlreadyExistsException {
 		client.activateUser("valid@mail.com");
 		int b = client.pointsBalance("valid@mail.com");
 		assertEquals(b, 100);
 	}
 	
 	@Test
-	public void getTwicePointsSucess() throws InvalidEmailFault_Exception, EmailAlreadyExistsFault_Exception {
+	public void getTwicePointsSucess() throws InvalidEmailException, EmailAlreadyExistsException{
 		client.activateUser("valid@mail.com");
 		int a = client.pointsBalance("valid@mail.com");
 		int b = client.pointsBalance("valid@mail.com");
 		assertEquals(a, b);
 	}
 	
-	@Test(expected=InvalidEmailFault_Exception.class)
-	public void getPointsOneSucessOneFail() throws InvalidEmailFault_Exception, EmailAlreadyExistsFault_Exception {
+	@Test(expected=InvalidEmailException.class)
+	public void getPointsOneSucessOneFail() throws InvalidEmailException, EmailAlreadyExistsException{
 		client.activateUser("valid@mail.com");
 		client.pointsBalance("valid@mail.com");
-		client.pointsBalance("unregistered@mail.com");
+		client.pointsBalance("ololol");
 	}
 
 	

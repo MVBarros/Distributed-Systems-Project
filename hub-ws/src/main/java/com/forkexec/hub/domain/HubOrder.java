@@ -16,7 +16,7 @@ public class HubOrder {
 	public String getOrderId() {
 		return orderId;
 	}
-	
+
 	public Map<String, Integer> getCart() {
 		return cart;
 	}
@@ -25,14 +25,25 @@ public class HubOrder {
 		this.orderId = orderId;
 	}
 
-	public void addToCart(String foodId, int quantity) {
-		if (cart.get(foodId) != null)
-			cart.put(foodId, cart.get(foodId) + quantity);
-		else
-			cart.put(foodId, quantity);
+	public synchronized void addToCart(String foodId, int quantity) throws CartQuantityException {
+		if (cart.get(foodId) != null) {
+			/* Just update Quantity */
+			if (cart.get(foodId) + quantity <= 0) {
+				throw new CartQuantityException("Cannot remove more quantity than what you have currently");
+			} else {
+				cart.put(foodId, cart.get(foodId) + quantity);
+			}
+		} else {
+			/* Add food to cart */
+			if (quantity > 0) {
+				cart.put(foodId, quantity);
+			} else {
+				throw new CartQuantityException("Cannot had negative amount of menu to cart");
+			}
+		}
 	}
-	
-	public void clear() {
+
+	public synchronized void clear() {
 		cart.clear();
 		orderId = null;
 	}

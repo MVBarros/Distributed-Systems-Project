@@ -12,12 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.jws.WebService;
 
 import com.forkexec.cc.ws.cli.CCClient;
+import com.forkexec.hub.domain.CartQuantityException;
 import com.forkexec.hub.domain.Hub;
+import com.forkexec.pts.domain.InvalidEmailException;
+import com.forkexec.pts.domain.InvalidPointsException;
+import com.forkexec.pts.domain.NotEnoughBalanceException;
 import com.forkexec.pts.ws.BadInitFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
-import com.forkexec.pts.ws.InvalidPointsFault_Exception;
-import com.forkexec.pts.ws.NotEnoughBalanceFault_Exception;
 import com.forkexec.pts.ws.cli.PointsClient;
 import com.forkexec.pts.ws.cli.PointsClientException;
 import com.forkexec.rst.ws.BadMenuIdFault_Exception;
@@ -44,27 +44,50 @@ public class HubPortImpl implements HubPortType {
 	 * lifecycle.
 	 */
 	private HubEndpointManager endpointManager;
+	
+	private PointsClient pointsClient;
 
 	/** Constructor receives a reference to the endpoint manager. */
 	public HubPortImpl(HubEndpointManager endpointManager) {
 		this.endpointManager = endpointManager;
+
+		
+	}
+	
+	public PointsClient getFrontEnd() {
+		if(pointsClient == null) {
+			Collection<String> bindings = null;
+			try {
+				bindings = this.endpointManager.getUddiNaming().list("T08_Points%");
+			} catch (UDDINamingException e) {
+				System.out.println("UDDI Service unreachable, got exception" + e);
+				throw new RuntimeException();
+			}
+
+			try {
+				this.pointsClient = new PointsClient(bindings);
+			} catch (PointsClientException e) {
+				System.out.println("Cannot reach client got exception" + e.getMessage());
+				throw new RuntimeException();
+			}
+		}
+			
+		return pointsClient;
 	}
 
 	// Main operations -------------------------------------------------------
 
 	@Override
-	public void activateAccount(String userId) throws InvalidUserIdFault_Exception {
+	public synchronized void activateAccount(String userId) throws InvalidUserIdFault_Exception {
 		try {
-			getPoints().activateUser(userId);
-		} catch (EmailAlreadyExistsFault_Exception e) {
-			throwInvalidUserId("Account has already been activated");
-		} catch (InvalidEmailFault_Exception e) {
+			getFrontEnd().activateUser(userId);
+		} catch (InvalidEmailException e) {
 			throwInvalidUserId("Email not valid");
 		}
 	}
 
 	@Override
-	public void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
+	public synchronized void loadAccount(String userId, int moneyToAdd, String creditCardNumber)
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
 
 		if (userId == null)
@@ -76,24 +99,24 @@ public class HubPortImpl implements HubPortType {
 		try {
 			switch (moneyToAdd) {
 			case 10:
-				getPoints().addPoints(userId, 1000);
+				getFrontEnd().addPoints(userId, 1000);
 				break;
 			case 20:
-				getPoints().addPoints(userId, 2100);
+				getFrontEnd().addPoints(userId, 2100);
 				break;
 			case 30:
-				getPoints().addPoints(userId, 3300);
+				getFrontEnd().addPoints(userId, 3300);
 				break;
 			case 50:
-				getPoints().addPoints(userId, 5500);
+				getFrontEnd().addPoints(userId, 5500);
 				break;
 			default:
 				throwInvalidMoney("Invalid Money Amount");
 			}
-		} catch (InvalidEmailFault_Exception e) {
+		} catch (InvalidEmailException e) {
 			throwInvalidUserId("Invalid user Id");
 
-		} catch (InvalidPointsFault_Exception e) {
+		} catch (InvalidPointsException e) {
 			throwInvalidMoney("Invalid Money Amount");
 		}
 
@@ -147,53 +170,45 @@ public class HubPortImpl implements HubPortType {
 	}
 
 	@Override
-	public void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
+	public synchronized void addFoodToCart(String userId, FoodId foodId, int foodQuantity)
 			throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 
-		if (userId == null || userId.contains(" "))
+		if (userId == null)
 			throwInvalidUserId("Invalid user id");
-		if (foodQuantity <= 0)
-			throwInvalidFoodQuantity("Invalid food quantity");
-		if (foodId == null)
-			throwInvalidFoodId("Invalid food id");
-		if (foodId.getMenuId() == null)
-			throwInvalidFoodId("menu can't be null");
 
-		if (foodId.getRestaurantId() == null)
-			throwInvalidFoodId("restaurant can't be null");
+		checkFoodId(foodId);
 
-		if (!getRestaurantIds().contains(foodId.getRestaurantId()))
-			throwInvalidFoodId("Non existing restaurant");
+		if (foodQuantity == 0)
+			throwInvalidFoodQuantity("Cannot had zero amounts of food");
 
-		try {
-			getPoints().pointsBalance(userId);
-		} catch (InvalidEmailFault_Exception e) {
-			throwInvalidUserId("Invalid user id");
-		}
+		accountBalance(userId);
 
 		/* Order Id is menuId\nrestaurantId */
-		Hub.getInstance().add2Cart(userId, foodId.getMenuId() + "\n" + foodId.getRestaurantId(), foodQuantity);
+		try {
+			Hub.getInstance().add2Cart(userId, foodId.getMenuId() + "\n" + foodId.getRestaurantId(), foodQuantity);
+		} catch (CartQuantityException e) {
+			throwInvalidFoodQuantity("Cannot had that quantity, got exception" + e);
+
+		}
 
 	}
 
 	@Override
-	public void clearCart(String userId) throws InvalidUserIdFault_Exception {
+	public synchronized void clearCart(String userId) throws InvalidUserIdFault_Exception {
 
-		if (userId == null || userId.contains(" "))
+		if (userId == null)
 			throwInvalidUserId("Invalid user id");
-		try {
-			getPoints().pointsBalance(userId);
-		} catch (InvalidEmailFault_Exception e) {
-			throwInvalidUserId("User id isn't registered");
-		}
+
+		/* If userId is invalid will throw exception */
+		accountBalance(userId);
 
 		Hub.getInstance().clearCart(userId);
 
 	}
 
 	@Override
-	public FoodOrder orderCart(String userId) throws EmptyCartFault_Exception, InvalidUserIdFault_Exception,
-			NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
+	public synchronized FoodOrder orderCart(String userId) throws EmptyCartFault_Exception,
+			InvalidUserIdFault_Exception, NotEnoughPointsFault_Exception, InvalidFoodQuantityFault_Exception {
 
 		List<FoodOrderItem> items = cartContents(userId);
 		if (items.size() == 0)
@@ -214,15 +229,16 @@ public class HubPortImpl implements HubPortType {
 
 		}
 		try {
-			getPoints().spendPoints(userId, totalpoints);
-		} catch (NotEnoughBalanceFault_Exception e) {
-			throwNotEnoughPoints("");
+			getFrontEnd().spendPoints(userId, totalpoints);
+		} catch (NotEnoughBalanceException e) {
+			throwNotEnoughPoints("Cannot pay for that cart");
 		} catch (Exception e) {
 			/* Will never happen */
 			throw new RuntimeException();
 		}
 
 		for (FoodOrderItem item : items) {
+			/* Buy Cart Item */
 			try {
 				getRestaurantbyId(item.getFoodId().getRestaurantId()).orderMenu(newMenuId(item.getFoodId()),
 						item.getFoodQuantity());
@@ -238,24 +254,27 @@ public class HubPortImpl implements HubPortType {
 			}
 		}
 
+		/* Create Order View */
 		FoodOrder order = new FoodOrder();
 		FoodOrderId orderId = new FoodOrderId();
 		orderId.setId(Hub.getInstance().getcurrentOrderId());
 		order.setFoodOrderId(orderId);
 
-		/* nao da para fazer set dos items do order */
 		order.getItems().addAll(items);
+
+		/* clear cart after order */
+		clearCart(userId);
 		return order;
 	}
 
 	@Override
-	public int accountBalance(String userId) throws InvalidUserIdFault_Exception {
+	public synchronized int accountBalance(String userId) throws InvalidUserIdFault_Exception {
 
 		int points = 0;
 
 		try {
-			points = getPoints().pointsBalance(userId);
-		} catch (InvalidEmailFault_Exception e) {
+			points = getFrontEnd().pointsBalance(userId);
+		} catch (InvalidEmailException e) {
 			throwInvalidUserId("Id given isn't valid, got exception" + e);
 		}
 		return points;
@@ -263,26 +282,17 @@ public class HubPortImpl implements HubPortType {
 
 	@Override
 	public Food getFood(FoodId foodId) throws InvalidFoodIdFault_Exception {
-		if (foodId == null)
-			throwInvalidFoodId("foodId can't be null");
 
-		if (foodId.getMenuId() == null)
-			throwInvalidFoodId("menu can't be null");
-
-		if (foodId.getRestaurantId() == null)
-			throwInvalidFoodId("restaurant can't be null");
+		checkFoodId(foodId);
 
 		RestaurantClient client = getRestaurantbyId(foodId.getRestaurantId());
-
-		if (client == null) {
-			throwInvalidFoodId("Restaurant does not exist");
-		}
 
 		Menu menu = null;
 		try {
 			menu = client.getMenu(newMenuId(foodId));
 		} catch (BadMenuIdFault_Exception e) {
-			throwInvalidFoodId("No such food with that name in that restaurant");
+			/* Will never Happen */
+			throw new RuntimeException();
 		}
 
 		return newFood(menu, foodId.getRestaurantId());
@@ -290,13 +300,11 @@ public class HubPortImpl implements HubPortType {
 	}
 
 	@Override
-	public List<FoodOrderItem> cartContents(String userId) throws InvalidUserIdFault_Exception {
+	public synchronized List<FoodOrderItem> cartContents(String userId) throws InvalidUserIdFault_Exception {
 		List<FoodOrderItem> items = new ArrayList<>();
-		try {
-			getPoints().pointsBalance(userId);
-		} catch (InvalidEmailFault_Exception e) {
-			throwInvalidUserId("Id given isn't valid, got exception" + e);
-		}
+
+		checkUserID(userId);
+
 		Map<String, Integer> carts = Hub.getInstance().getCart(userId);
 
 		for (String cartName : carts.keySet()) {
@@ -351,19 +359,13 @@ public class HubPortImpl implements HubPortType {
 				}
 			});
 
-			try {
-				bindingsCol = this.endpointManager.getUddiNaming().list("T08_Points%");
-				for (String binding : bindingsCol) {
-					responses.append(new PointsClient(binding).ctrlPing("hub").concat("\n"));
-				}
-			} catch (PointsClientException e) {
-				throw new RuntimeException();
-			}
-
+				
 		} catch (UDDINamingException e) {
 			System.out.println("UDDI Service unreachable, got exception" + e);
 			return null;
 		}
+		
+		responses.append(getFrontEnd().ctrlPing("hub").concat("\n"));
 		responses.append(new CCClient().ping("hub").concat("\n"));
 		return responses.append(builder.toString()).toString();
 	}
@@ -377,7 +379,7 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlClear() {
 		Hub.getInstance().clear();
-		getPoints().ctrlClear();
+		getFrontEnd().ctrlClear();
 		Map<String, RestaurantClient> clients = getRestaurants();
 
 		for (RestaurantClient client : clients.values()) {
@@ -434,9 +436,18 @@ public class HubPortImpl implements HubPortType {
 	@Override
 	public void ctrlInitUserPoints(int startPoints) throws InvalidInitFault_Exception {
 		try {
-			getPoints().ctrlInit(startPoints);
+			getFrontEnd().ctrlInit(startPoints);
 		} catch (BadInitFault_Exception e) {
 			throwInvalidInit("cannot init Points with those points");
+		}
+
+	}
+
+	private void checkUserID(String userId) throws InvalidUserIdFault_Exception {
+		try {
+			getFrontEnd().pointsBalance(userId);
+		} catch (InvalidEmailException e) {
+			throwInvalidUserId("Id given isn't valid, got exception" + e);
 		}
 
 	}
@@ -497,22 +508,6 @@ public class HubPortImpl implements HubPortType {
 
 	}
 
-	private PointsClient getPoints() {
-		String binding = null;
-		try {
-			binding = this.endpointManager.getUddiNaming().lookup("T08_Points%");
-		} catch (UDDINamingException e) {
-			System.out.println("UDDI Service unreachable, got exception" + e);
-			throw new RuntimeException();
-		}
-		try {
-			return new PointsClient(binding);
-		} catch (PointsClientException e) {
-			System.out.println("Cannot Reach Points server at " + binding + " got exception" + e);
-			throw new RuntimeException();
-		}
-	}
-
 	private CCClient getCreditCard() {
 
 		return new CCClient();
@@ -520,27 +515,11 @@ public class HubPortImpl implements HubPortType {
 
 	// View helpers ----------------------------------------------------------
 
-	// /** Helper to convert a domain object to a view. */
-	// private ParkInfo buildParkInfo(Park park) {
-	// ParkInfo info = new ParkInfo();
-	// info.setId(park.getId());
-	// info.setCoords(buildCoordinatesView(park.getCoordinates()));
-	// info.setCapacity(park.getMaxCapacity());
-	// info.setFreeSpaces(park.getFreeDocks());
-	// info.setAvailableCars(park.getAvailableCars());
-	// return info;
-	// }
-
 	private MenuId newMenuId(FoodId id) {
 		MenuId menuId = new MenuId();
 		menuId.setId(id.getMenuId());
 		return menuId;
 	}
-	/*
-	 * private FoodId newFoodId(MenuId id, String restaurantId) { FoodId foodId =
-	 * new FoodId(); foodId.setMenuId(id.getId());
-	 * foodId.setRestaurantId(restaurantId); return foodId; }
-	 */
 
 	private Food newFood(Menu menu, String restaurantId) {
 
@@ -578,14 +557,34 @@ public class HubPortImpl implements HubPortType {
 		return menuInit;
 	}
 
-	// Exception helpers -----------------------------------------------------
+	private void checkFoodId(FoodId foodId) throws InvalidFoodIdFault_Exception {
+		if (foodId == null)
+			throwInvalidFoodId("foodId can't be null");
 
-	/** Helper to throw a new BadInit exception. */
-//	private void throwBadInit(final String message) throws BadInitFault_Exception {
-//		BadInitFault faultInfo = new BadInitFault();
-//		faultInfo.message = message;
-//		throw new BadInitFault_Exception(message, faultInfo);
-//	}
+		if (foodId.getMenuId() == null)
+			throwInvalidFoodId("menu can't be null");
+
+		if (foodId.getRestaurantId() == null)
+			throwInvalidFoodId("restaurant can't be null");
+
+		foodExists(foodId);
+	}
+
+	public void foodExists(FoodId foodId) throws InvalidFoodIdFault_Exception {
+
+		RestaurantClient client = getRestaurantbyId(foodId.getRestaurantId());
+		if (client == null) {
+			throwInvalidFoodId("Restaurant does not exist");
+		}
+
+		try {
+			client.getMenu(newMenuId(foodId));
+		} catch (BadMenuIdFault_Exception e) {
+			throwInvalidFoodId("No such food with that name in that restaurant");
+		}
+
+	}
+	// Exception helpers -----------------------------------------------------
 
 	private void throwInvalidUserId(final String message) throws InvalidUserIdFault_Exception {
 		InvalidUserIdFault faultInfo = new InvalidUserIdFault();

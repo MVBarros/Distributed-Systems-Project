@@ -50,7 +50,7 @@ public class Hub {
 	}
 	
 
-	public synchronized void add2Cart(String userId, String foodid, Integer quantity) {
+	public synchronized void add2Cart(String userId, String foodid, Integer quantity) throws CartQuantityException {
 		if (!carts.containsKey(userId)) {
 			carts.put(userId, new HubOrder());
 		}	
@@ -70,7 +70,7 @@ public class Hub {
 		return Integer.toString(currentOrderId);
 	}
 	
-	public Map<String, Integer> getCart(String userId) {
+	public synchronized Map<String, Integer> getCart(String userId) {
 		if(!carts.containsKey(userId))
 			//Empty hash Map
 			return new ConcurrentHashMap<String, Integer>();
@@ -81,7 +81,7 @@ public class Hub {
 
 	
 	/**Control Functions*/
-	public void clear() {
+	public synchronized void clear() {
 		carts = new ConcurrentHashMap<String, HubOrder>();
 		currentOrderId = 0;
 

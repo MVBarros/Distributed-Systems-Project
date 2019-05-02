@@ -72,7 +72,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	
 	/**Order a menu by it's Id*/
 	@Override
-	public MenuOrder orderMenu(MenuId arg0, int arg1)
+	public synchronized MenuOrder orderMenu(MenuId arg0, int arg1)
 			throws BadMenuIdFault_Exception, BadQuantityFault_Exception, InsufficientQuantityFault_Exception {
 		if (arg0 == null)
 			throwBadMenuId("MenuId can't be null");
@@ -125,7 +125,7 @@ public class RestaurantPortImpl implements RestaurantPortType {
 	
 	/** Set variables with specific values. */
 	@Override
-	public void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
+	public synchronized void ctrlInit(List<MenuInit> initialMenus) throws BadInitFault_Exception {
 
 		if (initialMenus == null)
 			throwBadInit("Initial Menu list can't be null");

@@ -1,13 +1,9 @@
 package com.forkexec.pts.ws;
 
 import javax.jws.WebService;
-
-import com.forkexec.pts.domain.InvalidEmailNameException;
-import com.forkexec.pts.domain.InvalidPointCountException;
-import com.forkexec.pts.domain.NoSuchEmailException;
-import com.forkexec.pts.domain.NotEnoughBalanceException;
 import com.forkexec.pts.domain.Points;
-import com.forkexec.pts.domain.RepeatedUserEmailException;
+import com.forkexec.pts.domain.BalanceSequence;
+
 
 /**
  * This class implements the Web Service port type (interface). The annotations
@@ -28,81 +24,21 @@ public class PointsPortImpl implements PointsPortType {
 	}
 
 	// Main operations -------------------------------------------------------
-
 	@Override
-	public void activateUser(final String userEmail)
-			throws EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception {
-
-		if (userEmail == null)
-			throwInvalidEmailFault("Email can't be null");
-
-		try {
-			Points.getInstance().addAccount(userEmail);
-		} catch (InvalidEmailNameException e) {
-			throwInvalidEmailFault("Email entered is not valid");
-
-		} catch (RepeatedUserEmailException e) {
-			throwEmailAlreadyExistsFault("Email is already used");
-		}
+	public Balance pointsRead(String userEmail) {
+		BalanceSequence bs = Points.getInstance().pointsRead(userEmail);
+		Balance newBalance = new Balance ();
+		newBalance.setPoints(bs.getPoints());
+		newBalance.setTag(bs.getSequence());
+		return newBalance;
+		
 	}
-
+	
 	@Override
-	public int pointsBalance(final String userEmail) throws InvalidEmailFault_Exception {
-
-		if (userEmail == null)
-			throwInvalidEmailFault("Email can't be null");
-
-		int points = 0;
-		try {
-			points = Points.getInstance().getUserPoints(userEmail);
-
-		} catch (NoSuchEmailException e) {
-			throwInvalidEmailFault("Email entered does not exist");
-		}
-		return points;
-
-	}
-
-	@Override
-	public int addPoints(final String userEmail, final int pointsToAdd)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception {
-
-		if (userEmail == null)
-			throwInvalidEmailFault("Email can't be null");
-
-		int points = 0;
-		try {
-			points = Points.getInstance().addUserPoints(userEmail, pointsToAdd);
-
-		} catch (InvalidPointCountException e) {
-			throwInvalidPointsFault("Points must be >= 0");
-		} catch (NoSuchEmailException e) {
-			throwInvalidEmailFault("Email entered does not exist");
-		}
-
-		return points;
-	}
-
-	@Override
-	public int spendPoints(final String userEmail, final int pointsToSpend)
-			throws InvalidEmailFault_Exception, InvalidPointsFault_Exception, NotEnoughBalanceFault_Exception {
-
-		if (userEmail == null)
-			throwInvalidEmailFault("Email can't be null");
-
-		int points = 0;
-		try {
-			points = Points.getInstance().removeUserPoints(userEmail, pointsToSpend);
-
-		} catch (InvalidPointCountException e) {
-			throwInvalidPointsFault("Points must be >= 0");
-		} catch (NoSuchEmailException e) {
-			throwInvalidEmailFault("Email entered does not exist");
-		}catch (NotEnoughBalanceException e) {
-			throwNotEnoughBalanceFault("Not enough balance");
-		}
-
-		return points;
+	public int pointsWrite(String userEmail, Integer pointsVal, Long tag) {
+		return Points.getInstance().pointsWrite(userEmail, pointsVal, tag);
+		
+		
 	}
 
 	// Control operations ----------------------------------------------------
@@ -127,13 +63,13 @@ public class PointsPortImpl implements PointsPortType {
 
 	/** Return all variables to default values. */
 	@Override
-	public void ctrlClear() {
+	public synchronized void ctrlClear() {
 		Points.getInstance().resetPoints();
 	}
 
 	/** Set variables with specific values. */
 	@Override
-	public void ctrlInit(final int startPoints) throws BadInitFault_Exception {
+	public synchronized void ctrlInit(final int startPoints) throws BadInitFault_Exception {
 		if (startPoints < 0)
 			throwBadInit("Initial points must be >= 0");
 		Points.getInstance().initPoints(startPoints);
@@ -148,31 +84,7 @@ public class PointsPortImpl implements PointsPortType {
 		throw new BadInitFault_Exception(message, faultInfo);
 	}
 
-	/** Helper to throw a new EmailAlreadyExistsFault exception. */
-	private void throwEmailAlreadyExistsFault(final String message) throws EmailAlreadyExistsFault_Exception {
-		final EmailAlreadyExistsFault faultInfo = new EmailAlreadyExistsFault();
-		faultInfo.message = message;
-		throw new EmailAlreadyExistsFault_Exception(message, faultInfo);
-	}
 
-	/** Helper to throw a new InvalidEmailFault exception. */
-	private void throwInvalidEmailFault(final String message) throws InvalidEmailFault_Exception {
-		final InvalidEmailFault faultInfo = new InvalidEmailFault();
-		faultInfo.message = message;
-		throw new InvalidEmailFault_Exception(message, faultInfo);
-	}
 
-	/** Helper to throw a new NotEnoughBalanceFault exception. */
-	private void throwNotEnoughBalanceFault(final String message) throws NotEnoughBalanceFault_Exception {
-		final NotEnoughBalanceFault faultInfo = new NotEnoughBalanceFault();
-		faultInfo.message = message;
-		throw new NotEnoughBalanceFault_Exception(message, faultInfo);
-	}
-
-	/** Helper to throw a new NotEnoughBalanceFault exception. */
-	private void throwInvalidPointsFault(final String message) throws InvalidPointsFault_Exception {
-		final InvalidPointsFault faultInfo = new InvalidPointsFault();
-		faultInfo.message = message;
-		throw new InvalidPointsFault_Exception(message, faultInfo);
-	}
+	
 }

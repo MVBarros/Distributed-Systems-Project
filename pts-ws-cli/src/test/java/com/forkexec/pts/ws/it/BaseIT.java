@@ -1,6 +1,7 @@
 package com.forkexec.pts.ws.it;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import com.forkexec.pts.ws.cli.PointsClient;
@@ -41,9 +42,11 @@ public class BaseIT {
 		if ("true".equalsIgnoreCase(uddiEnabled)) {
 			client = new PointsClient(uddiURL, wsName);
 		} else {
-			client = new PointsClient(wsURL);
+			ArrayList<String> list = new ArrayList<String>();
+			list.add(wsURL);
+			client = new PointsClient(list);
 		}
-		client.setVerbose("true".equalsIgnoreCase(verboseEnabled));
+		client.getFrontEnd().setVerbose("true".equalsIgnoreCase(verboseEnabled));
 	}
 
 	@AfterClass

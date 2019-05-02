@@ -7,9 +7,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.forkexec.pts.domain.*;
 import com.forkexec.pts.ws.BadInitFault_Exception;
-import com.forkexec.pts.ws.EmailAlreadyExistsFault_Exception;
-import com.forkexec.pts.ws.InvalidEmailFault_Exception;
 
 /**
  * Test suite
@@ -40,7 +39,7 @@ public class CtrlInitIT extends BaseIT {
 	
 	//Bad Input Tests
 	@Test
-	public void ctrInitSucess() throws BadInitFault_Exception, EmailAlreadyExistsFault_Exception, InvalidEmailFault_Exception   {
+	public void ctrInitSucess() throws BadInitFault_Exception, EmailAlreadyExistsException, InvalidEmailException   {
 		client.ctrlInit(0);
 		client.activateUser("teste@gmail.com");
 		assertEquals(client.pointsBalance("teste@gmail.com"), 0);

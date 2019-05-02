@@ -48,10 +48,4 @@ public class ActivateAccountIT extends BaseIT {
 		client.activateAccount("ola");
 	}
 	
-	@Test(expected = InvalidUserIdFault_Exception.class)
-	public void sameEmailActivateAccount() throws InvalidUserIdFault_Exception {
-		client.activateAccount("ola@ola.com");
-		client.activateAccount("ola@ola.com");
-
-	}
 }

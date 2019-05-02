@@ -145,9 +145,4 @@ public class CartContentsIT extends BaseIT{
 	public void notAnEmailCartContents() throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
 		client.cartContents("Tony Stark");
 	}
-	
-	@Test(expected = InvalidUserIdFault_Exception.class)
-	public void notSuchEmailCartContents() throws InvalidFoodIdFault_Exception, InvalidFoodQuantityFault_Exception, InvalidUserIdFault_Exception {
-		client.cartContents("Tony.Stark@starkindustries.com");
-	}
 }
