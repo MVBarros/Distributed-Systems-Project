@@ -5,6 +5,7 @@ import static javax.xml.ws.BindingProvider.ENDPOINT_ADDRESS_PROPERTY;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,13 +25,16 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 public class PointsFrontEnd {
 
 	private int quorumSize;
-
+	/* Thread access */
 	static AtomicInteger writeCounter = new AtomicInteger();
 	static int writeValue;
 
 	static AtomicInteger readCounter = new AtomicInteger();
 	static Balance bestReturn = new Balance();
-	
+
+	/* Locks */
+
+	static Map<String, Object> locks = new ConcurrentHashMap<>();
 
 	/** WS service */
 	PointsService service = null;
@@ -45,7 +49,7 @@ public class PointsFrontEnd {
 	private String wsName = null;
 
 	/** WS end point address */
-	private Collection<String> wsURL = null; 
+	private Collection<String> wsURL = null;
 
 	public Collection<String> getWsURL() {
 		return wsURL;
@@ -75,8 +79,7 @@ public class PointsFrontEnd {
 		uddiLookup();
 		createStub();
 	}
-	
-	
+
 	/** UDDI lookup */
 	private void uddiLookup() throws PointsClientException {
 		try {
@@ -104,19 +107,18 @@ public class PointsFrontEnd {
 		if (verbose)
 			System.out.println("Creating stub ...");
 
-		
-		for(String url: wsURL) {
+		for (String url : wsURL) {
 			service = new PointsService();
 			PointsPortType port = service.getPointsPort();
 			BindingProvider bindingProvider = (BindingProvider) port;
 			Map<String, Object> requestContext = bindingProvider.getRequestContext();
 			requestContext.put(ENDPOINT_ADDRESS_PROPERTY, url);
-			
+
 			ports.add(port);
 		}
 		quorumSize = ports.size() / 2 + 1;
 	}
-	
+
 	public void ctrlClear() {
 		for (PointsPortType port : ports) {
 			port.ctrlClear();
@@ -137,87 +139,90 @@ public class PointsFrontEnd {
 		return result;
 	}
 
-	public synchronized int pointsWrite(String email, int points, long tag) {
-		writeCounter.set(0);
+	public int pointsWrite(String email, int points, long tag) {
+		synchronized (locks.computeIfAbsent(email, k -> new Object())) {
+			writeCounter.set(0);
 
-		for (PointsPortType port : ports) {
-			port.pointsWriteAsync(email, points, tag, new AsyncHandler<PointsWriteResponse>() {
+			for (PointsPortType port : ports) {
+				port.pointsWriteAsync(email, points, tag, new AsyncHandler<PointsWriteResponse>() {
 
-				@Override
-				public synchronized void handleResponse(Response<PointsWriteResponse> response) {
-					try {
-						writeValue = response.get().getReturn();
-						writeCounter.getAndIncrement();
-					} catch (InterruptedException e) {
-						System.out.println("Caught interrupted exception.");
-						System.out.print("Cause: ");
-						System.out.println(e.getCause());
-					} catch (ExecutionException e) {
-						System.out.println("Caught execution exception.");
-						System.out.print("Cause: ");
-						System.out.println(e.getCause());
+					@Override
+					public synchronized void handleResponse(Response<PointsWriteResponse> response) {
+						try {
+							writeValue = response.get().getReturn();
+							writeCounter.getAndIncrement();
+						} catch (InterruptedException e) {
+							System.out.println("Caught interrupted exception.");
+							System.out.print("Cause: ");
+							System.out.println(e.getCause());
+						} catch (ExecutionException e) {
+							System.out.println("Caught execution exception.");
+							System.out.print("Cause: ");
+							System.out.println(e.getCause());
+						}
 					}
-				}
-			});
-		}
-		while (writeCounter.get() < quorumSize) {
-			try {
-				/*Wait for Quorum*/
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				System.out.println("Caught interrupted exception.");
-				System.out.print("Cause: ");
-				System.out.println(e.getCause());
+				});
 			}
+			while (writeCounter.get() < quorumSize) {
+				try {
+					/* Wait for Quorum */
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					System.out.println("Caught interrupted exception.");
+					System.out.print("Cause: ");
+					System.out.println(e.getCause());
+				}
+			}
+			/* write returns written value */
 		}
-		/* write returns written value */
 		return writeValue;
 
 	}
 
-	public synchronized Balance pointsRead(String email) {
-		readCounter.set(0);
+	public Balance pointsRead(String email) {
+		synchronized (locks.computeIfAbsent(email, k -> new Object())) {
+			readCounter.set(0);
 
-		bestReturn = new Balance();
-		bestReturn.setTag((long) -1);
+			bestReturn = new Balance();
+			bestReturn.setTag((long) -1);
 
-		for (PointsPortType port : ports) {
+			for (PointsPortType port : ports) {
 
-			port.pointsReadAsync(email, new AsyncHandler<PointsReadResponse>() {
+				port.pointsReadAsync(email, new AsyncHandler<PointsReadResponse>() {
 
-				@Override
-				public synchronized void handleResponse(Response<PointsReadResponse> response) {
-					try {
-						if (bestReturn.getTag() < response.get().getReturn().getTag()) {
-							bestReturn.setPoints(response.get().getReturn().getPoints());
-							bestReturn.setTag(response.get().getReturn().getTag());
+					@Override
+					public synchronized void handleResponse(Response<PointsReadResponse> response) {
+						try {
+							if (bestReturn.getTag() < response.get().getReturn().getTag()) {
+								bestReturn.setPoints(response.get().getReturn().getPoints());
+								bestReturn.setTag(response.get().getReturn().getTag());
+							}
+							readCounter.incrementAndGet();
+
+						} catch (InterruptedException e) {
+							System.out.println("Caught interrupted exception.");
+							System.out.print("Cause: ");
+							System.out.println(e.getCause());
+						} catch (ExecutionException e) {
+							System.out.println("Caught execution exception.");
+							System.out.print("Cause: ");
+							System.out.println(e.getCause());
 						}
-						readCounter.incrementAndGet();
-
-					} catch (InterruptedException e) {
-						System.out.println("Caught interrupted exception.");
-						System.out.print("Cause: ");
-						System.out.println(e.getCause());
-					} catch (ExecutionException e) {
-						System.out.println("Caught execution exception.");
-						System.out.print("Cause: ");
-						System.out.println(e.getCause());
 					}
-				}
-			});
-		}
+				});
+			}
 
-		while (readCounter.get() < quorumSize) {
-			try {
-				Thread.sleep(10 /* milliseconds */);
-				/*Wait for Quorum*/
-			} catch (InterruptedException e) {
-				System.out.println("Caught interrupted exception.");
-				System.out.print("Cause: ");
-				System.out.println(e.getCause());
+			while (readCounter.get() < quorumSize) {
+				try {
+					Thread.sleep(10 /* milliseconds */);
+					/* Wait for Quorum */
+				} catch (InterruptedException e) {
+					System.out.println("Caught interrupted exception.");
+					System.out.print("Cause: ");
+					System.out.println(e.getCause());
+				}
 			}
 		}
-
 		return bestReturn;
 	}
 }
