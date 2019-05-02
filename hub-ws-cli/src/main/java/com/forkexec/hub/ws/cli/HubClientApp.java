@@ -49,7 +49,8 @@ public class HubClientApp {
 		
 		client.activateAccount("test@test.test");
 		
-		System.out.println("Ao ler agora os pontos vemos que tem " + client.accountBalance("test@test.test") + " pontos");
+		System.out.println("Ao ler agora os pontos vemos que tem " + client.accountBalance("test@test.test") + " pontos, demonstramos portanto o funcionamento"
+				+ "normal do sistema");
 		System.out.println("Iremos agora desligar o primeiro servidor de pontos");
 		
 		System.in.read();
