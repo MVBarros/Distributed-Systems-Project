@@ -74,6 +74,7 @@ public class PointsClient  {
 		createStub();
 	}
 	
+	/*to allow inheritance*/
 	public PointsClient() {};
 
 	/** UDDI lookup */

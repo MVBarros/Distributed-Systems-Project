@@ -20,16 +20,13 @@ public class HubFrontEnd extends PointsClient {
 	static AtomicInteger writeCounter = new AtomicInteger();
 	static int writeValue;
 
-	static AtomicInteger respostasRecebidas = new AtomicInteger();
+	static AtomicInteger readCounter = new AtomicInteger();
 	static Balance bestReturn = new Balance();
 
 	public HubFrontEnd(Collection<PointsClient> clients) {
 		super();
 		this.clients = clients;
 		this.quorumSize = clients.size() / 2 + 1;
-		System.out.print("quorumSize-->");
-
-		System.out.println(this.quorumSize);
 	}
 
 	public void ctrlClear() {
@@ -58,8 +55,9 @@ public class HubFrontEnd extends PointsClient {
 
 		for (PointsClient client : clients) {
 			client.pointsWriteAsync(email, points, tag, new AsyncHandler<PointsWriteResponse>() {
+
 				@Override
-				public void handleResponse(Response<PointsWriteResponse> response) {
+				public synchronized void handleResponse(Response<PointsWriteResponse> response) {
 					try {
 						writeValue = response.get().getReturn();
 						writeCounter.getAndIncrement();
@@ -77,21 +75,22 @@ public class HubFrontEnd extends PointsClient {
 		}
 		while (writeCounter.get() < quorumSize) {
 			try {
+				/*Wait for Quorum*/
 				Thread.sleep(10);
-				// System.out.println(writeCounter.get());
 			} catch (InterruptedException e) {
 				System.out.println("Caught interrupted exception.");
 				System.out.print("Cause: ");
 				System.out.println(e.getCause());
 			}
 		}
+		/* write returns written value */
 		return writeValue;
 
 	}
 
 	@Override
 	public Balance pointsRead(String email) {
-		respostasRecebidas.set(0);
+		readCounter.set(0);
 
 		bestReturn = new Balance();
 		bestReturn.setTag((long) -1);
@@ -99,15 +98,15 @@ public class HubFrontEnd extends PointsClient {
 		for (PointsClient client : clients) {
 
 			client.pointsReadAsync(email, new AsyncHandler<PointsReadResponse>() {
+
 				@Override
-				public void handleResponse(Response<PointsReadResponse> response) {
-					System.out.println("Entrei aqui");
+				public synchronized void handleResponse(Response<PointsReadResponse> response) {
 					try {
 						if (bestReturn.getTag() < response.get().getReturn().getTag()) {
 							bestReturn.setPoints(response.get().getReturn().getPoints());
 							bestReturn.setTag(response.get().getReturn().getTag());
 						}
-						respostasRecebidas.incrementAndGet();
+						readCounter.incrementAndGet();
 
 					} catch (InterruptedException e) {
 						System.out.println("Caught interrupted exception.");
@@ -122,17 +121,10 @@ public class HubFrontEnd extends PointsClient {
 			});
 		}
 
-		while (respostasRecebidas.get() < quorumSize) {
+		while (readCounter.get() < quorumSize) {
 			try {
 				Thread.sleep(10 /* milliseconds */);
-				// System.out.print("TAG-->");
-				// System.out.println(bestReturn.getTag());
-				/*
-				 * System.out.print("Respostas recebidas -->");
-				 * System.out.println(respostasRecebidas.get()); System.out.println(bestReturn);
-				 */
-				// System.out.print("POINTS-->");
-				// System.out.println(bestReturn.getPoints());
+				/*Wait for Quorum*/
 			} catch (InterruptedException e) {
 				System.out.println("Caught interrupted exception.");
 				System.out.print("Cause: ");
