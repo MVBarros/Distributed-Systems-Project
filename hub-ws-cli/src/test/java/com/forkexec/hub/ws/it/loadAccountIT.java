@@ -85,12 +85,6 @@ public class loadAccountIT extends BaseIT {
 		client.loadAccount("\t", 10, "4024007102923926");
 	}
 
-	@Test(expected = InvalidUserIdFault_Exception.class)
-	public void noSuchEmailLoadAccount()
-			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
-		client.loadAccount("ola2@ola.com", 10, "4024007102923926");
-	}
-
 	@Test(expected = InvalidMoneyFault_Exception.class)
 	public void negativePointsLoadAccount()
 			throws InvalidCreditCardFault_Exception, InvalidMoneyFault_Exception, InvalidUserIdFault_Exception {
