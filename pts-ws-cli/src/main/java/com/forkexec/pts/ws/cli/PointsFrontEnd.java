@@ -16,6 +16,7 @@ import javax.xml.ws.Response;
 import com.forkexec.pts.ws.PointsReadResponse;
 import com.forkexec.pts.ws.PointsService;
 import com.forkexec.pts.ws.PointsWriteResponse;
+import com.forkexec.pts.domain.NotEnoughBalanceException;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.Balance;
 import com.forkexec.pts.ws.PointsPortType;
@@ -222,5 +223,24 @@ public class PointsFrontEnd {
 			}
 		}
 		return bestReturn;
+	}
+
+	public int pointsIncrement(String email, int points, String operand) throws NotEnoughBalanceException {
+		synchronized (locks.computeIfAbsent(email, k -> new AtomicInteger())) {
+			Balance balance = pointsRead(email);
+
+			/* spend Points */
+			if (operand.equals("-")) {
+				if (balance.getPoints() - points < 0) {
+					throw new NotEnoughBalanceException("Cannot spend that ammount");
+				}
+				return pointsWrite(email, balance.getPoints() - points, balance.getTag() + 1);
+			}
+
+			else {
+				return pointsWrite(email, balance.getPoints() + points, balance.getTag() + 1);
+			}
+
+		}
 	}
 }

@@ -64,7 +64,7 @@ public class Points {
 	}
 
 	
-	public synchronized int pointsWrite(String email, int points, long tag) {
+	public int pointsWrite(String email, int points, long tag) {
 		if(!accounts.containsKey(email)) {
 			accounts.put(email, new BalanceSequence(points, tag));
 		}
@@ -76,7 +76,7 @@ public class Points {
 		return accounts.get(email).getPoints();
 	}
 	
-	public synchronized BalanceSequence pointsRead(String email) {
+	public BalanceSequence pointsRead(String email) {
 		
 		if(!accounts.containsKey(email)) {
 			accounts.put(email, new BalanceSequence(initialBalance.get(), 0));

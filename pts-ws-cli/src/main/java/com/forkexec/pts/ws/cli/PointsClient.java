@@ -53,12 +53,17 @@ public class PointsClient  {
 	
 	public int addPoints(String userEmail, int pointsToAdd)
 			throws InvalidEmailException, InvalidPointsException {
+		
 		checkEmail(userEmail);
 		if (pointsToAdd <= 0) throw new InvalidPointsException("Points must be > 0"); 
 		
-		Balance b = frontend.pointsRead(userEmail);
+		try {
+			return frontend.pointsIncrement(userEmail, pointsToAdd, "+");	
+		}catch (NotEnoughBalanceException e) {
+			/*will never happen*/
+			throw new RuntimeException();
+		}
 		
-		return frontend.pointsWrite(userEmail, b.getPoints() + pointsToAdd, b.getTag()+1);
 		
 	}
 
@@ -71,12 +76,7 @@ public class PointsClient  {
 		
 		checkEmail(userEmail);
 		
-		Balance balance = frontend.pointsRead(userEmail);
-		
-		if (balance.getPoints() < pointsToSpend)
-			throw new NotEnoughBalanceException("Cannot spend that ammount");
-		
-		return frontend.pointsWrite(userEmail, balance.getPoints() - pointsToSpend, balance.getTag() + 1);
+		return frontend.pointsIncrement(userEmail, pointsToSpend, "-");
 	}
 	
 	
