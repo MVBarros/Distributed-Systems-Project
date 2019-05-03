@@ -1,5 +1,7 @@
 package com.forkexec.hub.ws.cli;
 
+import com.forkexec.pts.ws.cli.PointsFrontEndCache;
+
 /** 
  * Client application. 
  * 
@@ -44,6 +46,12 @@ public class HubClientApp {
 		System.out.println(result);
 		
 		// Demonstracao
+		
+		PointsFrontEndCache.hasCache = false;
+		
+		if(!PointsFrontEndCache.hasCache) {
+			System.out.println("A cache foi desligada para este exemplo");
+		}
 		System.out.println("Comecamos com os 3 servidores de pontos ativos");
 		System.out.println("Iremos ativar uma conta com o email test@test.test");
 		

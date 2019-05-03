@@ -34,6 +34,7 @@ public class PointsFrontEnd {
 
 	static Balance bestReturn = new Balance();
 	
+		
 	/*Local cache*/
 	private PointsFrontEndCache frontEndCache = new PointsFrontEndCache(this);
 
