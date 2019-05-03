@@ -11,6 +11,9 @@ public class PointsFrontEndCache {
 	public PointsCacheElement cache[];
 	public int index;
 
+	/* for the demo */
+	public static boolean hasCache;
+
 	public PointsFrontEndCache(PointsFrontEnd fe) {
 		this.cache = new PointsCacheElement[CACHE_SIZE];
 		/* init cache */
@@ -19,19 +22,23 @@ public class PointsFrontEndCache {
 		}
 		this.index = 0;
 		this.frontEnd = fe;
+		hasCache = true;
 	}
 
 	public int writeCache(String email, int points, long tag) {
 
+		if (!hasCache)
+			return frontEnd.pointsWrite(email, points, tag);
+
 		synchronized (cache) {
 			for (PointsCacheElement elem : cache) {
-				if (elem.isValid() && elem.getMail().equals(email)) 
+				if (elem.isValid() && elem.getMail().equals(email))
 					if (tag > elem.getTag()) {
 						// valid, dirty, points, tag, mail
 						elem.setCacheElement(true, true, points, tag, email);
 						return points;
-					}
-					else return elem.getPoints();		
+					} else
+						return elem.getPoints();
 			}
 
 			writeBack();
@@ -49,6 +56,11 @@ public class PointsFrontEndCache {
 	}
 
 	public Balance cacheRead(String email) {
+
+		if (!hasCache) {
+			return frontEnd.pointsRead(email);
+		}
+
 		synchronized (cache) {
 			for (int i = 0; i < CACHE_SIZE; i++)
 				if (cache[i].isValid() && cache[i].getMail().equals(email))

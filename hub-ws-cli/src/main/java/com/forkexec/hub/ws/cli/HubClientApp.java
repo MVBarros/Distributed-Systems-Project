@@ -1,5 +1,7 @@
 package com.forkexec.hub.ws.cli;
 
+import com.forkexec.pts.ws.cli.PointsFrontEndCache;
+
 /** 
  * Client application. 
  * 
@@ -44,6 +46,12 @@ public class HubClientApp {
 		System.out.println(result);
 		
 		// Demonstracao
+		
+		PointsFrontEndCache.hasCache = false;
+		
+		if(!PointsFrontEndCache.hasCache) {
+			System.out.println("A cache foi desligada para este exemplo");
+		}
 		System.out.println("Comecamos com os 3 servidores de pontos ativos");
 		System.out.println("Iremos ativar uma conta com o email test@test.test");
 		
@@ -125,7 +133,22 @@ public class HubClientApp {
 		
 		System.out.println("Isto so e possivel acontecer porque a 2a replica atualizou-se");
 		
-		System.out.println("Acabou assim a demonstracao");
+		PointsFrontEndCache.hasCache = true;
+		
+		if(PointsFrontEndCache.hasCache) {
+			System.out.println("A cache foi ligada para mostrar o funcionamento normal do sistema com cache");
+		}	
+		
+		client.loadAccount("test@test.test", 10, "4024007102923926");
+		client.loadAccount("test@test.test", 10, "4024007102923926");
+		client.loadAccount("test@test.test", 10, "4024007102923926");
+		
+		System.out.println("O saldo da conta e " + client.accountBalance("test@test.test") + 
+				"pontos, apos adicionar 3 vezes 1000 pontos a conta, sendo que apenas ouve uma chamada"
+				+ "assincrona na 1o read efetuado, e que o saldo se encontra agora em cache");
+		
+		System.out.println("Acabou assim a demonstracao, para ver mais exemplos do sistema a funcionar com cache"
+				+ "correr todos os testes (mvn verify na pasta source do projeto) com 3 servidores de pontos, 2 de restaurantes e 1 hub ligados ");
 		
 		client.ctrlClear();
 	}
