@@ -147,7 +147,8 @@ public class HubClientApp {
 				"pontos, apos adicionar 3 vezes 1000 pontos a conta, sendo que apenas ouve uma chamada"
 				+ "assincrona na 1o read efetuado, e que o saldo se encontra agora em cache");
 		
-		System.out.println("Acabou assim a demonstracao");
+		System.out.println("Acabou assim a demonstracao, para ver mais exemplos do sistema a funcionar com cache"
+				+ "correr todos os testes (mvn verify na pasta source do projeto) com 3 servidores de pontos, 2 de restaurantes e 1 hub ligados ");
 		
 		client.ctrlClear();
 	}
