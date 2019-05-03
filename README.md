@@ -8,14 +8,14 @@ Distributed Systems 2018-2019, 2nd semester project
 
 Group T08
 
-Miguel Veloso Barros 87691 MVBarros 
+Miguel Veloso Barros 87691 MVBarros
 
-Carolina Carreira 87641 CarolinaCC 
+Carolina Carreira 87641 CarolinaCC
 
 ## Getting Started
 
 The overall system is composed of multiple services and clients.
-The main service is the _hub_ service that is aided by the _pts_ service. 
+The main service is the _hub_ service that is aided by the _pts_ service.
 There are also multiple _rst_ services, one for each participating restaurant.
 
 See the project statement for a full description of the domain and the system.
@@ -58,10 +58,18 @@ rst-ws/$mvn compile exec:java
 rst-ws/$mvn compile exec:java -Dws.i=2
 ```
 
-launch one instance of points
+launch three instance of points
 
 ```
 pts-ws$mvn compile exec:java
+```
+
+```
+pts-ws$mvn compile exec:java -Dws.i=2
+```
+
+```
+pts-ws$mvn compile exec:java -Dws.i=3
 ```
 
 launch one instance of hub
@@ -90,7 +98,7 @@ Recommended before running tests installing without running tests
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. 
+We use [SemVer](http://semver.org/) for versioning.
 
 
 
