@@ -26,6 +26,8 @@ import pt.ulisboa.tecnico.sdis.ws.uddi.UDDINaming;
 public class PointsFrontEnd {
 
 	private int quorumSize;
+	private int readThreshold;
+	private int writeThreshold;
 	/* Thread access */
 	static int writeValue;
 
@@ -116,6 +118,9 @@ public class PointsFrontEnd {
 			ports.add(port);
 		}
 		quorumSize = ports.size() / 2 + 1;
+		readThreshold = 2;
+		writeThreshold = ports.size() - readThreshold + 1;
+		
 	}
 
 	public void ctrlClear() {
@@ -162,7 +167,7 @@ public class PointsFrontEnd {
 					}
 				});
 			}
-			while (locks.get(email).get() < quorumSize) {
+			while (locks.get(email).get() < writeThreshold) {
 				try {
 					/* Wait for Quorum */
 					Thread.sleep(10);
@@ -211,7 +216,7 @@ public class PointsFrontEnd {
 				});
 			}
 
-			while (locks.get(email).get() < quorumSize) {
+			while (locks.get(email).get() < readThreshold) {
 				try {
 					Thread.sleep(10 /* milliseconds */);
 					/* Wait for Quorum */
