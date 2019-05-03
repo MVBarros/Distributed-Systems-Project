@@ -133,6 +133,20 @@ public class HubClientApp {
 		
 		System.out.println("Isto so e possivel acontecer porque a 2a replica atualizou-se");
 		
+		PointsFrontEndCache.hasCache = true;
+		
+		if(PointsFrontEndCache.hasCache) {
+			System.out.println("A cache foi ligada para mostrar o funcionamento normal do sistema com cache");
+		}	
+		
+		client.loadAccount("test@test.test", 10, "4024007102923926");
+		client.loadAccount("test@test.test", 10, "4024007102923926");
+		client.loadAccount("test@test.test", 10, "4024007102923926");
+		
+		System.out.println("O saldo da conta e " + client.accountBalance("test@test.test") + 
+				"pontos, apos adicionar 3 vezes 1000 pontos a conta, sendo que apenas ouve uma chamada"
+				+ "assincrona na 1o read efetuado, e que o saldo se encontra agora em cache");
+		
 		System.out.println("Acabou assim a demonstracao");
 		
 		client.ctrlClear();
