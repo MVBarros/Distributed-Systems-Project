@@ -34,8 +34,8 @@ public class PointsCacheElement {
 	
 	public PointsCacheElement() {
 		this.dirty = false;
-		this.balance = null;
-		this.mail = null;
+		this.balance = new Balance();
+		this.mail = "";
 		this.valid = false;
 	}
 	

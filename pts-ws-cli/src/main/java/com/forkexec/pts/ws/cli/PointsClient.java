@@ -42,12 +42,12 @@ public class PointsClient  {
 	public void activateUser(String userEmail) throws InvalidEmailException {
 		
 		checkEmail(userEmail);
-		frontend.pointsRead(userEmail);		
+		frontend.cacheRead(userEmail);		
 	}
 
 	public int pointsBalance(String userEmail) throws InvalidEmailException {
 		checkEmail(userEmail);
-		return frontend.pointsRead(userEmail).getPoints();
+		return frontend.cacheRead(userEmail).getPoints();
 	}
 	
 	

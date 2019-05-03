@@ -13,10 +13,11 @@ import javax.xml.ws.AsyncHandler;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Response;
 
+import com.forkexec.pts.domain.*;
+
 import com.forkexec.pts.ws.PointsReadResponse;
 import com.forkexec.pts.ws.PointsService;
 import com.forkexec.pts.ws.PointsWriteResponse;
-import com.forkexec.pts.domain.NotEnoughBalanceException;
 import com.forkexec.pts.ws.BadInitFault_Exception;
 import com.forkexec.pts.ws.Balance;
 import com.forkexec.pts.ws.PointsPortType;
@@ -34,7 +35,7 @@ public class PointsFrontEnd {
 	static Balance bestReturn = new Balance();
 	
 	/*Local cache*/
-	private PointsFrontEndCache frontEndCache = new PointsFrontEndCache();
+	private PointsFrontEndCache frontEndCache = new PointsFrontEndCache(this);
 
 	/* Locks */
 
@@ -121,8 +122,15 @@ public class PointsFrontEnd {
 			ports.add(port);
 		}
 		quorumSize = ports.size() / 2 + 1;
-		readThreshold = 2;
-		writeThreshold = ports.size() - readThreshold + 1;
+		
+		
+		if(ports.size() == 1) 
+			readThreshold = writeThreshold = 1;
+		
+		else {
+			readThreshold = 2;
+			writeThreshold = ports.size() - readThreshold + 1;
+		}
 		
 	}
 
@@ -130,12 +138,15 @@ public class PointsFrontEnd {
 		for (PointsPortType port : ports) {
 			port.ctrlClear();
 		}
+		frontEndCache = new PointsFrontEndCache(this);
 	}
 
 	public void ctrlInit(int pts) throws BadInitFault_Exception {
 		for (PointsPortType port : ports) {
 			port.ctrlInit(pts);
 		}
+		frontEndCache = new PointsFrontEndCache(this);
+
 	}
 
 	public String ctrlPing(String str) {
@@ -235,30 +246,28 @@ public class PointsFrontEnd {
 
 	public int pointsIncrement(String email, int points, String operand) throws NotEnoughBalanceException {
 		synchronized (locks.computeIfAbsent(email, k -> new AtomicInteger())) {
-			Balance balance = pointsRead(email);
+			Balance balance = cacheRead(email);
 
 			/* spend Points */
 			if (operand.equals("-")) {
 				if (balance.getPoints() - points < 0) {
 					throw new NotEnoughBalanceException("Cannot spend that ammount");
 				}
-				return pointsWrite(email, balance.getPoints() - points, balance.getTag() + 1);
+				return writeCache(email, balance.getPoints() - points, balance.getTag() + 1);
 			}
 
 			else {
-				return pointsWrite(email, balance.getPoints() + points, balance.getTag() + 1);
+				return writeCache(email, balance.getPoints() + points, balance.getTag() + 1);
 			}
 
 		}
 	}
 	
 	public Balance cacheRead(String email) {
-		Balance balance = frontEndCache.cacheRead(email);
-		if(balance == null) {
-			balance = pointsRead(email);
-			frontEndCache.WriteCache(email, balance.getPoints(), balance.getTag());
-		}
-		
-		return balance;
+		return frontEndCache.cacheRead(email);
+	}
+	
+	public int writeCache(String email, int points, long tag) {
+		return frontEndCache.writeCache(email, points, tag);
 	}
 }
