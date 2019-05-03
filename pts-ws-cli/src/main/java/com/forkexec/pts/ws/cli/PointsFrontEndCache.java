@@ -15,4 +15,8 @@ public class PointsFrontEndCache {
 		}
 		this.index = 0;
 	}
+	
+	public Balance cacheRead() {
+		
+	}
 }
