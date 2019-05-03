@@ -35,6 +35,8 @@ public class PointsCacheElement {
 	public PointsCacheElement() {
 		this.dirty = false;
 		this.balance = null;
+		this.mail = null;
+		this.valid = false;
 	}
 	
 	public String getMail() {

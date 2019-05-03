@@ -1,22 +1,27 @@
 package com.forkexec.pts.ws.cli;
 
+import com.forkexec.pts.ws.Balance;
+
 public class PointsFrontEndCache {
-	
+
 	private PointsFrontEnd frontEnd;
-	public static final int CACHE_SIZE = 10;
 	
+	public static final int CACHE_SIZE = 10;
+
 	public PointsCacheElement cache[];
 	public int index;
+
 	
 	public PointsFrontEndCache( PointsFrontEnd fe) {
 		this.cache = new PointsCacheElement[CACHE_SIZE];
-		/*init cache*/
+		/* init cache */
 		for (int i = 0; i < CACHE_SIZE; i++) {
 			cache[i] = new PointsCacheElement();
 		}
 		this.index = 0;
 		this.frontEnd = fe;
 	}
+
 	
 	public int WriteCache(String email, int points, long tag) {
 		
@@ -35,6 +40,20 @@ public class PointsFrontEndCache {
 		cache[index].setCacheElement(true, true, points, tag, email);
 		index = (index + 1) % CACHE_SIZE;
 		return points;
-		
 	}
+		
+
+	public Balance cacheRead(String email) {
+		for (int i = 0; i < CACHE_SIZE; i++) {
+			if (cache[i].isValid()) {
+				if (cache[i].getMail().equals(email)) {
+					return cache[i].getBalance();
+				}
+			}
+		}
+
+		return null;
+	}
+
+
 }
