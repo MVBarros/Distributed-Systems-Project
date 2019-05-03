@@ -19,6 +19,14 @@ public class PointsCacheElement {
 		return balance;
 	}
 	
+	public void setCacheElement (boolean valid, boolean dirty, int points, long tag, String mail) {
+		setValid(valid);
+		setDirty(dirty);
+		this.balance.setPoints(points);
+		this.balance.setTag(tag);
+		setMail(mail);
+	}
+	
 	
 	public void setBalance(Balance balance) {
 		this.balance = balance;
@@ -31,6 +39,14 @@ public class PointsCacheElement {
 	
 	public String getMail() {
 		return mail;
+	}
+	
+	public int getPoints() {
+		return this.balance.getPoints();
+	}
+	
+	public long getTag() {
+		return this.balance.getTag();
 	}
 	
 	public void setMail(String mail) {
