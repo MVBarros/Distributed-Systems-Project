@@ -32,6 +32,9 @@ public class PointsFrontEnd {
 	static int writeValue;
 
 	static Balance bestReturn = new Balance();
+	
+	/*Local cache*/
+	private PointsFrontEndCache frontEndCache = new PointsFrontEndCache();
 
 	/* Locks */
 
@@ -247,5 +250,15 @@ public class PointsFrontEnd {
 			}
 
 		}
+	}
+	
+	public Balance cacheRead(String email) {
+		Balance balance = frontEndCache.cacheRead(email);
+		if(balance == null) {
+			balance = pointsRead(email);
+			frontEndCache.WriteCache(email, balance.getPoints(), balance.getTag());
+		}
+		
+		return balance;
 	}
 }

@@ -19,15 +19,14 @@ public class PointsFrontEndCache {
 	}
 
 	public Balance cacheRead(String email) {
-		for (int i = 0; i < CACHE_SIZE; i++) {
-			if (cache[i].isValid()) {
-				if (cache[i].getMail().equals(email)) {
-					return cache[i].getBalance();
-				}
-			}
+		synchronized (cache) {
+			for (int i = 0; i < CACHE_SIZE; i++) 
+				if (cache[i].isValid()) 
+					if (cache[i].getMail().equals(email)) 
+						return cache[i].getBalance();			
 		}
-
 		return null;
+
 	}
 
 	public void WriteCache(String email, int points, long tag) {
